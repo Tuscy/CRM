@@ -1,0 +1,58 @@
+// Web Agency CRM - Prisma Schema
+// Matches architecture document: User, Lead, Deal, Task, Note
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+}
+
+model Lead {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  company   String?
+  website   String?
+  source    String?
+  status    String   @default("NEW")
+  createdAt DateTime @default(now())
+  deals     Deal[]
+  notes     Note[]
+  tasks     Task[]
+}
+
+model Deal {
+  id        String   @id @default(cuid())
+  value     Int?
+  stage     String
+  leadId    String
+  createdAt DateTime @default(now())
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+}
+
+model Task {
+  id        String   @id @default(cuid())
+  title     String
+  dueDate   DateTime?
+  completed Boolean  @default(false)
+  leadId    String
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  content   String
+  leadId    String
+  createdAt DateTime @default(now())
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+}

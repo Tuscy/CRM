@@ -40,6 +40,18 @@ Internal CRM for leads, deals, and pipeline management. Built with Next.js (App 
 - App: [http://localhost:3000](http://localhost:3000)
 - Dashboard: [http://localhost:3000/dashboard](http://localhost:3000/dashboard)
 
+## Environment variables
+
+Create a `.env` file (based on `.env.example`) and configure:
+
+- **`DATABASE_URL`** – PostgreSQL connection string (Neon recommended)
+- **`GOOGLE_CLIENT_ID`** – OAuth 2.0 client ID for Google Analytics
+- **`GOOGLE_CLIENT_SECRET`** – OAuth 2.0 client secret
+- **`GOOGLE_OAUTH_REDIRECT_URL`** – Redirect URL configured in your Google Cloud OAuth client  
+  e.g. `https://your-crm.vercel.app/api/auth/google/callback` (you can adjust the path when we wire the OAuth flow)
+
+These GA variables are needed once you start connecting client sites to GA4.
+
 ## Project structure
 
 - `app/` – Next.js App Router
@@ -51,9 +63,10 @@ Internal CRM for leads, deals, and pipeline management. Built with Next.js (App 
 - `lib/` – Shared code
   - `lib/prisma.ts` – Prisma client singleton
   - `lib/auth.ts` – Auth placeholder (Clerk/Auth.js)
+  - `lib/auth-client.ts` – Client portal auth helper (cookie-based `ClientUser` session)
   - `lib/utils.ts` – `cn()` for Tailwind
   - `lib/constants.ts` – Pipeline stages
-  - `lib/server/actions/` – Server actions (leads, deals)
+  - `lib/server/actions/` – Server actions (leads, deals, client auth)
 - `prisma/` – Schema and migrations
 
 ## Features
@@ -62,6 +75,7 @@ Internal CRM for leads, deals, and pipeline management. Built with Next.js (App 
 - **Pipeline**: Kanban by stage (New Lead → Won/Lost); move deals via card menu
 - **Dashboard**: Counts and recent leads
 - **Analytics**: Lead count, deal count, won deals, pipeline value
+- **Client portal**: `/client` area where clients can log in to view their own leads and (soon) analytics
 
 ## Scripts
 

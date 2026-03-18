@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { prisma } from "@/lib/prisma";
+import { getClientAnalytics } from "@/lib/analytics/ga4";
 
 export default async function AnalyticsPage() {
   const [leadCount, dealCount, wonDeals, pipelineValue] = await Promise.all([
@@ -11,6 +12,22 @@ export default async function AnalyticsPage() {
       where: { stage: { not: "LOST" } },
     }),
   ]);
+
+  // Optional: show GA4 metrics for a default client if configured.
+  let gaSummary: { totalUsers: number; sessions: number } | null = null;
+  try {
+    const defaultClient = await prisma.analyticsConnection.findFirst();
+    if (defaultClient) {
+      const analytics = await getClientAnalytics({
+        clientId: defaultClient.clientId,
+        startDate: "30daysAgo",
+        endDate: "today",
+      });
+      gaSummary = analytics.summary;
+    }
+  } catch {
+    gaSummary = null;
+  }
 
   return (
     <div className="space-y-6">
@@ -55,6 +72,30 @@ export default async function AnalyticsPage() {
           <CardContent>
             <p className="text-2xl font-bold">
               ${(pipelineValue._sum.value ?? 0).toLocaleString()}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              GA visitors (last 30 days)
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold">
+              {gaSummary ? gaSummary.totalUsers.toLocaleString() : "—"}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              GA sessions (last 30 days)
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold">
+              {gaSummary ? gaSummary.sessions.toLocaleString() : "—"}
             </p>
           </CardContent>
         </Card>

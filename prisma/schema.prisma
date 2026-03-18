@@ -26,6 +26,9 @@ model Lead {
   source    String?
   status    String   @default("NEW")
   createdAt DateTime @default(now())
+  clientId  String?
+
+  client Client? @relation(fields: [clientId], references: [id])
   deals     Deal[]
   notes     Note[]
   tasks     Task[]
@@ -55,4 +58,47 @@ model Note {
   leadId    String
   createdAt DateTime @default(now())
   lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+}
+
+model Client {
+  id                 String       @id @default(cuid())
+  name               String
+  primaryContactEmail String
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+
+  leads       Lead[]
+  clientUsers ClientUser[]
+  analytics   AnalyticsConnection[]
+}
+
+model ClientUser {
+  id        String   @id @default(cuid())
+  email     String
+  name      String?
+  role      String   @default("OWNER")
+  clientId  String
+  createdAt DateTime @default(now())
+
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([email])
+}
+
+model AnalyticsConnection {
+  id            String   @id @default(cuid())
+  clientId      String
+  gaPropertyId  String
+  gaAccountEmail String?
+
+  accessToken   String?
+  refreshToken  String?
+  tokenExpiry   DateTime?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([clientId])
 }

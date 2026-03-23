@@ -1,0 +1,158 @@
+// Stky platform — single source of truth for apps/web + apps/app
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String       @id @default(cuid())
+  email       String       @unique
+  name        String?
+  createdAt   DateTime     @default(now())
+  memberships Membership[]
+}
+
+model Lead {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  company   String?
+  website   String?
+  source    String?
+  status    String   @default("NEW")
+  createdAt DateTime @default(now())
+  clientId  String?
+  siteId    String?
+
+  client Client? @relation(fields: [clientId], references: [id])
+  site   Site?   @relation(fields: [siteId], references: [id], onDelete: SetNull)
+  deals  Deal[]
+  notes  Note[]
+  tasks  Task[]
+}
+
+model Deal {
+  id        String   @id @default(cuid())
+  value     Int?
+  stage     String
+  leadId    String
+  createdAt DateTime @default(now())
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+}
+
+model Task {
+  id        String    @id @default(cuid())
+  title     String
+  dueDate   DateTime?
+  completed Boolean   @default(false)
+  leadId    String
+  lead      Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  content   String
+  leadId    String
+  createdAt DateTime @default(now())
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+}
+
+model Client {
+  id                  String   @id @default(cuid())
+  name                String
+  primaryContactEmail String
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  leads       Lead[]
+  memberships Membership[]
+  analytics   AnalyticsConnection[]
+  sites       Site[]
+}
+
+model Membership {
+  id        String   @id @default(cuid())
+  userId    String
+  clientId  String
+  role      String   @default("OWNER")
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, clientId])
+  @@index([clientId])
+}
+
+model Site {
+  id           String   @id @default(cuid())
+  clientId     String
+  slug         String?
+  customDomain String?  @unique
+  subdomain    String?  @unique
+  branding     Json?
+  config       Json?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  pages  Page[]
+  leads  Lead[]
+
+  @@index([clientId])
+}
+
+model Page {
+  id        String   @id @default(cuid())
+  siteId    String
+  slug      String   @default("")
+  type      String   @default("MARKETING")
+  seo       Json?
+  published Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  site     Site      @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  sections Section[]
+
+  @@unique([siteId, slug])
+  @@index([siteId])
+}
+
+model Section {
+  id        String   @id @default(cuid())
+  pageId    String
+  order     Int
+  type      String
+  content   Json
+  settings  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  page Page @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@index([pageId, order])
+}
+
+model AnalyticsConnection {
+  id             String    @id @default(cuid())
+  clientId       String
+  gaPropertyId   String
+  gaAccountEmail String?
+
+  accessToken  String?
+  refreshToken String?
+  tokenExpiry  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([clientId])
+}

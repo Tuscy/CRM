@@ -1,3 +1,19 @@
+# Dependencies
 node_modules
+
+# Env
 .env
+.env.local
+.env.*.local
+.env.pre-monorepo-move-backup
+
+# Next.js / Turbo
 .next
+apps/*/.next
+.turbo
+
+# Build outputs
+dist
+
+# OS
+.DS_Store

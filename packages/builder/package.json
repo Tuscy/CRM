@@ -1,0 +1,25 @@
+{
+  "name": "@stky/builder",
+  "version": "0.0.0",
+  "private": true,
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0"
+  },
+  "scripts": {
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "build": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@stky/sites": "workspace:*",
+    "@stky/ui": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.6",
+    "@types/react": "^18.3.12",
+    "typescript": "^5.6.3"
+  }
+}

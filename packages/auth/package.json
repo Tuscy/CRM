@@ -1,0 +1,22 @@
+{
+  "name": "@stky/auth",
+  "version": "0.0.0",
+  "private": true,
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "build": "tsc -p tsconfig.json --noEmit"
+  },
+  "peerDependencies": {
+    "@stky/db": "workspace:*",
+    "next": "^14.0.0 || ^15.0.0"
+  },
+  "devDependencies": {
+    "@stky/db": "workspace:*",
+    "next": "14.2.35",
+    "typescript": "^5.6.3"
+  }
+}

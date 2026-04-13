@@ -1,10 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@stky/db";
+import { isValidLeadStatus } from "@stky/crm";
+import { requireAutomationAuth } from "@/lib/api-auth";
+import { ApiScope } from "@/lib/api-scopes";
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  if (
+    !(await requireAutomationAuth(
+      request,
+      "GET /api/leads/[id]",
+      ApiScope.LEADS_READ
+    ))
+  ) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const { id } = await params;
     const lead = await prisma.lead.findUnique({
@@ -34,10 +47,24 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  if (
+    !(await requireAutomationAuth(
+      request,
+      "PUT /api/leads/[id]",
+      ApiScope.LEADS_WRITE
+    ))
+  ) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const { id } = await params;
     const body = await request.json();
     const { name, email, company, website, source, status } = body;
+
+    if (status !== undefined && !isValidLeadStatus(status)) {
+      return NextResponse.json({ error: "Invalid lead status" }, { status: 400 });
+    }
 
     const lead = await prisma.lead.update({
       where: { id },
@@ -69,6 +96,16 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  if (
+    !(await requireAutomationAuth(
+      request,
+      "DELETE /api/leads/[id]",
+      ApiScope.LEADS_WRITE
+    ))
+  ) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const { id } = await params;
     await prisma.lead.delete({ where: { id } });

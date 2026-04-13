@@ -1,0 +1,20 @@
+# Local n8n for workflow automation (CRM webhooks → n8n Webhook trigger).
+# From CRM/: docker compose up -d
+# UI: http://localhost:5678 — create a workflow with Webhook, paste URL into CRM_WEBHOOK_URL.
+
+services:
+  n8n:
+    image: docker.n8n.io/n8nio/n8n
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://localhost:5678/
+      - GENERIC_TIMEZONE=UTC
+    volumes:
+      - n8n_data:/home/node/.n8n
+
+volumes:
+  n8n_data:

@@ -2,6 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@stky/db";
+import type { Prisma } from "@stky/db";
+import { isValidLeadStatus } from "@stky/crm";
+import { notifyLeadCreated } from "@/lib/crm/webhook-events";
 
 export type CreateLeadInput = {
   name: string;
@@ -15,6 +18,10 @@ export type CreateLeadInput = {
 export type UpdateLeadInput = Partial<CreateLeadInput>;
 
 export async function createLead(data: CreateLeadInput) {
+  const status = data.status ?? "NEW";
+  if (!isValidLeadStatus(status)) {
+    throw new Error("Invalid lead status");
+  }
   const lead = await prisma.lead.create({
     data: {
       name: data.name,
@@ -22,22 +29,38 @@ export async function createLead(data: CreateLeadInput) {
       company: data.company,
       website: data.website,
       source: data.source,
-      status: data.status ?? "NEW",
+      status,
     },
     include: { deals: true },
   });
+  await notifyLeadCreated(lead);
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/leads");
   revalidatePath("/dashboard/pipeline");
   return lead;
 }
 
-export async function getLeads(filters?: { status?: string; source?: string }) {
+export async function getLeads(filters?: {
+  status?: string;
+  source?: string;
+  q?: string;
+}) {
+  const where: Prisma.LeadWhereInput = {
+    ...(filters?.status && { status: filters.status }),
+    ...(filters?.source && { source: filters.source }),
+    ...(filters?.q?.trim() && {
+      OR: [
+        { name: { contains: filters.q.trim(), mode: "insensitive" } },
+        { email: { contains: filters.q.trim(), mode: "insensitive" } },
+        {
+          company: { contains: filters.q.trim(), mode: "insensitive" },
+        },
+      ],
+    }),
+  };
+
   return prisma.lead.findMany({
-    where: {
-      ...(filters?.status && { status: filters.status }),
-      ...(filters?.source && { source: filters.source }),
-    },
+    where,
     include: {
       deals: true,
       _count: { select: { tasks: true, notes: true } },
@@ -58,6 +81,9 @@ export async function getLeadById(id: string) {
 }
 
 export async function updateLead(id: string, data: UpdateLeadInput) {
+  if (data.status !== undefined && !isValidLeadStatus(data.status)) {
+    throw new Error("Invalid lead status");
+  }
   const lead = await prisma.lead.update({
     where: { id },
     data: {

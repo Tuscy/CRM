@@ -1,14 +1,10 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { rateLimit } from "@stky/security/edge";
 
-/** Dev: `?siteId=...` pins tenant without DNS */
-export function middleware(request: NextRequest) {
-  const siteId = request.nextUrl.searchParams.get("siteId");
-  if (siteId) {
-    const res = NextResponse.next();
-    res.headers.set("x-stky-site-id", siteId);
-    return res;
-  }
+/** Light edge rate limit for public site renderer (requires Upstash in production). */
+export async function middleware(request: NextRequest) {
+  const blocked = await rateLimit(request, "general");
+  if (blocked) return blocked;
   return NextResponse.next();
 }
 

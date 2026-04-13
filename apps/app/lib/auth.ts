@@ -1,9 +1,9 @@
-// Placeholder for Clerk or Auth.js integration
-// Replace with your auth provider when ready
+import { auth } from "@/auth";
 
 export async function getCurrentUser() {
-  // TODO: Integrate Clerk or Auth.js
-  return null;
+  const session = await auth();
+  if (!session?.user?.id) return null;
+  return session.user;
 }
 
 export async function requireAuth() {
@@ -12,4 +12,12 @@ export async function requireAuth() {
     throw new Error("Unauthorized");
   }
   return user;
+}
+
+export async function requireStaffSession() {
+  const session = await auth();
+  if (!session?.user?.isStaff) {
+    throw new Error("Unauthorized");
+  }
+  return session.user;
 }

@@ -1,7 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@stky/db";
+import { isValidDealStage } from "@stky/crm";
+import { requireAutomationAuth } from "@/lib/api-auth";
+import { ApiScope } from "@/lib/api-scopes";
+import { notifyDealCreated } from "@/lib/crm/webhook-events";
 
 export async function POST(request: NextRequest) {
+  if (
+    !(await requireAutomationAuth(
+      request,
+      "POST /api/deals",
+      ApiScope.DEALS_WRITE
+    ))
+  ) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const body = await request.json();
     const { leadId, value, stage } = body;
@@ -13,6 +27,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (!isValidDealStage(stage)) {
+      return NextResponse.json({ error: "Invalid deal stage" }, { status: 400 });
+    }
+
     const deal = await prisma.deal.create({
       data: {
         leadId,
@@ -21,6 +39,8 @@ export async function POST(request: NextRequest) {
       },
       include: { lead: true },
     });
+
+    await notifyDealCreated(deal);
 
     return NextResponse.json(deal);
   } catch (error) {

@@ -5,7 +5,7 @@ import {
   PIPELINE_STAGES,
   PIPELINE_STAGE_LABELS,
   type PipelineStage,
-} from "@/lib/constants";
+} from "@stky/crm";
 import { Card, CardContent, CardHeader } from "@stky/ui";
 import { Button } from "@stky/ui";
 import {

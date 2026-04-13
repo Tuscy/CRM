@@ -1,11 +1,12 @@
-import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
 import Link from "next/link";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { Button, Card, CardContent, CardHeader, CardTitle } from "@stky/ui";
+import { StaffCredentialsForm } from "@/components/crm/staff-credentials-form";
 
 const STAFF_COOKIE = "stky_staff_gate";
 
-async function staffLogin(formData: FormData) {
+async function legacyStaffLogin(formData: FormData) {
   "use server";
   const password = process.env.STAFF_DASHBOARD_PASSWORD;
   if (!password) {
@@ -36,9 +37,11 @@ export default async function StaffLoginPage({
 }) {
   const sp = await searchParams;
   const nextPath = sp.next ?? "/dashboard";
-  const showError = sp.error === "1";
+  const showLegacyError = sp.error === "1";
+  const hasAuthSecret = Boolean(process.env.AUTH_SECRET);
+  const legacyPassword = Boolean(process.env.STAFF_DASHBOARD_PASSWORD);
 
-  if (!process.env.STAFF_DASHBOARD_PASSWORD) {
+  if (!hasAuthSecret && !legacyPassword) {
     return (
       <div className="mx-auto max-w-md p-8">
         <Card>
@@ -46,7 +49,12 @@ export default async function StaffLoginPage({
             <CardTitle>Staff gate disabled</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 text-sm text-muted-foreground">
-            <p>Set <code className="rounded bg-muted px-1">STAFF_DASHBOARD_PASSWORD</code> to enable.</p>
+            <p>
+              Set <code className="rounded bg-muted px-1">AUTH_SECRET</code> and
+              create a staff user (see README), or set{" "}
+              <code className="rounded bg-muted px-1">STAFF_DASHBOARD_PASSWORD</code>{" "}
+              for the legacy shared password.
+            </p>
             <Button asChild>
               <Link href="/dashboard">Continue to dashboard</Link>
             </Button>
@@ -61,30 +69,63 @@ export default async function StaffLoginPage({
       <Card className="w-full">
         <CardHeader>
           <CardTitle>Staff sign-in</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            {hasAuthSecret
+              ? "Sign in with your staff account."
+              : "Use the shared dashboard password."}
+          </p>
         </CardHeader>
-        <CardContent>
-          <form action={staffLogin} className="space-y-4">
-            <input type="hidden" name="next" value={nextPath} />
-            {showError ? (
-              <p className="text-sm text-destructive">Incorrect password. Try again.</p>
-            ) : null}
-            <div>
-              <label htmlFor="password" className="mb-1 block text-sm font-medium">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                autoComplete="current-password"
-              />
+        <CardContent className="space-y-8">
+          {hasAuthSecret ? (
+            <StaffCredentialsForm
+              callbackUrl={
+                nextPath.startsWith("/dashboard") ? nextPath : "/dashboard"
+              }
+            />
+          ) : null}
+
+          {legacyPassword && hasAuthSecret ? (
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-card px-2 text-muted-foreground">
+                  Or legacy password
+                </span>
+              </div>
             </div>
-            <Button type="submit" className="w-full">
-              Unlock dashboard
-            </Button>
-          </form>
+          ) : null}
+
+          {legacyPassword ? (
+            <form action={legacyStaffLogin} className="space-y-4">
+              <input type="hidden" name="next" value={nextPath} />
+              {showLegacyError ? (
+                <p className="text-sm text-destructive">
+                  Incorrect password. Try again.
+                </p>
+              ) : null}
+              <div>
+                <label
+                  htmlFor="legacy-password"
+                  className="mb-1 block text-sm font-medium"
+                >
+                  Shared dashboard password
+                </label>
+                <input
+                  id="legacy-password"
+                  name="password"
+                  type="password"
+                  required={!hasAuthSecret}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  autoComplete="current-password"
+                />
+              </div>
+              <Button type="submit" variant="secondary" className="w-full">
+                Unlock with shared password
+              </Button>
+            </form>
+          ) : null}
         </CardContent>
       </Card>
     </div>

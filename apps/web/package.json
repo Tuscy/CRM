@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@stky/builder": "workspace:*",
+    "@stky/security": "workspace:*",
     "@stky/db": "workspace:*",
     "@stky/sites": "workspace:*",
     "@stky/ui": "workspace:*",

@@ -14,14 +14,18 @@
     "@stky/crm": "workspace:*",
     "@stky/db": "workspace:*",
     "@stky/sites": "workspace:*",
+    "@stky/security": "workspace:*",
     "@stky/ui": "workspace:*",
+    "bcryptjs": "^2.4.3",
     "googleapis": "^144.0.0",
     "lucide-react": "^0.460.0",
     "next": "14.2.35",
+    "next-auth": "^5.0.0-beta.25",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20.17.6",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",

@@ -79,23 +79,58 @@ export default async function LeadDetailPage({
       </div>
       <Card>
         <CardHeader>
-          <CardTitle>Notes</CardTitle>
+          <CardTitle>Activity</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Notes and tasks, newest first
+          </p>
         </CardHeader>
         <CardContent>
-          {lead.notes.length === 0 ? (
-            <p className="text-muted-foreground text-sm">No notes.</p>
-          ) : (
-            <ul className="space-y-2">
-              {lead.notes.map((n) => (
-                <li key={n.id} className="text-sm border-l-2 pl-3 py-1">
-                  {n.content}
-                  <span className="text-muted-foreground text-xs ml-2">
-                    {new Date(n.createdAt).toLocaleString()}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
+          {(() => {
+            const items = [
+              ...lead.notes.map((n) => ({
+                kind: "note" as const,
+                at: n.createdAt,
+                text: n.content,
+                id: n.id,
+              })),
+              ...lead.tasks.map((t) => ({
+                kind: "task" as const,
+                at: t.dueDate ?? lead.createdAt,
+                text: t.title,
+                completed: t.completed,
+                id: t.id,
+              })),
+            ].sort((a, b) => b.at.getTime() - a.at.getTime());
+            if (items.length === 0) {
+              return (
+                <p className="text-muted-foreground text-sm">No activity yet.</p>
+              );
+            }
+            return (
+              <ul className="space-y-3">
+                {items.map((item) => (
+                  <li
+                    key={`${item.kind}-${item.id}`}
+                    className="text-sm border-l-2 border-muted pl-3 py-1"
+                  >
+                    <span className="text-xs text-muted-foreground uppercase tracking-wide">
+                      {item.kind}
+                    </span>
+                    {item.kind === "task" && item.completed ? (
+                      <span className="line-through text-muted-foreground ml-2">
+                        {item.text}
+                      </span>
+                    ) : (
+                      <span className="ml-2">{item.text}</span>
+                    )}
+                    <span className="text-muted-foreground text-xs ml-2 block sm:inline">
+                      {new Date(item.at).toLocaleString()}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            );
+          })()}
         </CardContent>
       </Card>
     </div>

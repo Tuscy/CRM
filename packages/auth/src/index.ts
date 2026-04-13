@@ -28,5 +28,11 @@ export async function requireCurrentMembership() {
 
 export async function clearPortalSession() {
   const cookieStore = await cookies();
-  cookieStore.delete(MEMBERSHIP_COOKIE);
+  cookieStore.set(MEMBERSHIP_COOKIE, "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    sameSite: "lax",
+    maxAge: 0,
+  });
 }

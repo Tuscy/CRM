@@ -1,7 +1,9 @@
 // Stky platform — single source of truth for apps/web + apps/app
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  // Vercel / Linux OpenSSL 3 — required for serverless deploy; "native" keeps local dev (e.g. macOS)
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {

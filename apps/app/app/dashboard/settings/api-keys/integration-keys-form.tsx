@@ -26,6 +26,7 @@ const SCOPE_OPTIONS: { value: string; label: string }[] = [
   { value: "leads:write", label: "leads:write" },
   { value: "deals:write", label: "deals:write" },
   { value: "analytics:read", label: "analytics:read" },
+  { value: "google-ads:read", label: "google-ads:read" },
 ];
 
 export function IntegrationKeysForm({

@@ -28,7 +28,7 @@ export default async function ClientDetailPage({
           </p>
         </div>
       </div>
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader>
             <CardTitle>Leads</CardTitle>
@@ -67,6 +67,48 @@ export default async function ClientDetailPage({
                 {client.analytics.map((a) => (
                   <li key={a.id}>
                     Property: <span className="font-mono">{a.gaPropertyId}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Google Ads</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {client.googleAdsConnections.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No Ads accounts linked.{" "}
+                <Link
+                  href="/dashboard/google-ads/settings"
+                  className="underline hover:text-foreground"
+                >
+                  Add a mapping
+                </Link>{" "}
+                or open the{" "}
+                <Link
+                  href={`/dashboard/google-ads?clientId=${client.id}`}
+                  className="underline hover:text-foreground"
+                >
+                  Google Ads tab
+                </Link>
+                .
+              </p>
+            ) : (
+              <ul className="text-sm text-muted-foreground space-y-2">
+                {client.googleAdsConnections.map((g) => (
+                  <li key={g.id}>
+                    <Link
+                      href={`/dashboard/google-ads?adsCustomerId=${g.googleAdsCustomerId}&clientId=${client.id}`}
+                      className="underline hover:text-foreground"
+                    >
+                      {g.displayName ?? g.label ?? g.googleAdsCustomerId}
+                    </Link>
+                    <span className="font-mono text-xs ml-1">
+                      ({g.googleAdsCustomerId})
+                    </span>
                   </li>
                 ))}
               </ul>

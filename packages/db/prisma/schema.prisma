@@ -128,10 +128,46 @@ model Client {
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
-  leads       Lead[]
-  memberships Membership[]
-  analytics   AnalyticsConnection[]
-  sites       Site[]
+  leads                Lead[]
+  memberships          Membership[]
+  analytics            AnalyticsConnection[]
+  sites                Site[]
+  googleAdsConnections GoogleAdsConnection[]
+}
+
+model GoogleAdsSettings {
+  id              String   @id @default("default")
+  loginCustomerId String
+  updatedAt       DateTime @updatedAt
+}
+
+model GoogleAdsConnection {
+  id                  String    @id @default(cuid())
+  clientId            String?
+  googleAdsCustomerId String    @unique
+  label               String?
+  displayName         String?
+  lastSyncedAt        DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  client Client? @relation(fields: [clientId], references: [id], onDelete: SetNull)
+
+  @@index([clientId])
+}
+
+model GoogleAdsAuditLog {
+  id           String   @id @default(cuid())
+  actorUserId  String?
+  customerId   String
+  operation    String
+  payload      Json
+  result       Json?
+  execute      Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  @@index([customerId])
+  @@index([createdAt])
 }
 
 model Membership {

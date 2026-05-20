@@ -62,6 +62,12 @@ export default async function DashboardLayout({
               Analytics
             </Link>
             <Link
+              href="/dashboard/google-ads"
+              className="text-muted-foreground hover:text-foreground"
+            >
+              Google Ads
+            </Link>
+            <Link
               href="/dashboard/automations"
               className="text-muted-foreground hover:text-foreground"
             >

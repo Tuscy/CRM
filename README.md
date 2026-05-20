@@ -98,6 +98,13 @@ If these are unset, the Automations page shows setup instructions instead of fai
 
 Staff dashboard analytics uses the first `AnalyticsConnection` if present; client-scoped analytics should go through the portal or authenticated API.
 
+## Google Ads
+
+- Staff UI: **`/dashboard/google-ads`** (overview) and **`/dashboard/google-ads/settings`** (MCC + account mappings).
+- Server env: **`GOOGLE_ADS_DEVELOPER_TOKEN`**, **`GOOGLE_ADS_CLIENT_ID`**, **`GOOGLE_ADS_CLIENT_SECRET`**, **`GOOGLE_ADS_REFRESH_TOKEN`** (same agency credentials as the `google-ads/` sandbox).
+- DB: **`GoogleAdsSettings`** (MCC ID), **`GoogleAdsConnection`** (optional CRM client ↔ Ads customer ID; multiple Ads accounts per client supported).
+- See **`docs/google-ads.md`** for API routes and migration steps (`pnpm db:migrate`).
+
 ## Observability
 
 - Server code emits one-line JSON logs via `logStky` (`apps/app/lib/observability.ts`) for API `401`s, forbidden scope, portal email failures, integration keys changes, and webhook failures.

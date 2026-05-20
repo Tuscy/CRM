@@ -19,6 +19,7 @@ export async function getClientById(id: string) {
       leads: true,
       memberships: { include: { user: true } },
       analytics: true,
+      googleAdsConnections: true,
     },
   });
 }

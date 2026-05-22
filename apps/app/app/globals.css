@@ -44,6 +44,28 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
   }
+
+  .dashboard-shell {
+    --background: 220 8% 16%;
+    --foreground: 40 25% 92%;
+    --card: 220 8% 20%;
+    --card-foreground: 40 25% 92%;
+    --primary: 40 25% 92%;
+    --primary-foreground: 220 8% 16%;
+    --secondary: 220 8% 22%;
+    --secondary-foreground: 40 25% 92%;
+    --muted: 220 8% 22%;
+    --muted-foreground: 40 12% 72%;
+    --accent: 220 8% 26%;
+    --accent-foreground: 40 25% 92%;
+    --destructive: 0 62.8% 50%;
+    --destructive-foreground: 40 25% 92%;
+    --border: 220 8% 28%;
+    --input: 220 8% 28%;
+    --ring: 40 20% 75%;
+    --popover: 220 8% 20%;
+    --popover-foreground: 40 25% 92%;
+  }
 }
 
 body {

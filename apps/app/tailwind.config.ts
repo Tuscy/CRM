@@ -24,6 +24,8 @@ const config: Config = {
         destructive: { DEFAULT: "hsl(var(--destructive))", foreground: "hsl(var(--destructive-foreground))" },
         card: { DEFAULT: "hsl(var(--card))", foreground: "hsl(var(--card-foreground))" },
         popover: { DEFAULT: "hsl(var(--popover))", foreground: "hsl(var(--popover-foreground))" },
+        "input-text": "hsl(var(--input-text))",
+        "input-background": "hsl(var(--input-background))",
       },
     },
   },

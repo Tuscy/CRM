@@ -122,9 +122,19 @@ model Note {
 }
 
 model Client {
-  id                  String   @id @default(cuid())
-  name                String
+  id                    String   @id @default(cuid())
+  name                  String
+  companyName           String?
+  companiesHouseNumber  String?  @unique
+  industry              String?
+  services            String?
   primaryContactEmail String
+  contactPhone        String?
+  contactAddress      String?
+  billingPeriod       String?
+  billingPrice        Decimal? @db.Decimal(12, 2)
+  billingCurrency     String?  @default("USD")
+  billingNotes        String?
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 

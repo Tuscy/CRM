@@ -13,6 +13,14 @@ export default function HomePage() {
       >
         Open Dashboard
       </Link>
+      <p className="mt-8 text-center text-sm text-muted-foreground">
+        <Link
+          href="/privacy-policy"
+          className="underline-offset-4 hover:underline hover:text-foreground"
+        >
+          Privacy Policy
+        </Link>
+      </p>
     </main>
   );
 }

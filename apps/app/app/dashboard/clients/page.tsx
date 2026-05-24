@@ -29,6 +29,7 @@ export default async function ClientsPage() {
                 <thead>
                   <tr className="border-b bg-muted/50">
                     <th className="text-left p-3 font-medium">Name</th>
+                    <th className="text-left p-3 font-medium">Company</th>
                     <th className="text-left p-3 font-medium">Primary contact</th>
                     <th className="text-left p-3 font-medium">Leads</th>
                     <th className="text-left p-3 font-medium">Portal users</th>
@@ -40,6 +41,9 @@ export default async function ClientsPage() {
                   {clients.map((client) => (
                     <tr key={client.id} className="border-b last:border-0">
                       <td className="p-3">{client.name}</td>
+                      <td className="p-3 text-muted-foreground">
+                        {client.companyName ?? "—"}
+                      </td>
                       <td className="p-3 text-muted-foreground">
                         {client.primaryContactEmail}
                       </td>

@@ -13,8 +13,8 @@ export default async function DashboardLayout({
   const session = await auth();
 
   return (
-    <div className="dashboard-shell flex min-h-screen bg-background text-foreground">
-      <aside className="flex h-screen w-56 shrink-0 flex-col border-r bg-muted">
+    <div className="dashboard-shell flex h-screen overflow-hidden bg-background text-foreground">
+      <aside className="flex h-full w-56 shrink-0 flex-col border-r bg-muted">
         <div className="shrink-0 border-b px-4 py-4">
           <Link href="/dashboard" className="font-semibold text-foreground">
             Web Agency CRM
@@ -29,7 +29,7 @@ export default async function DashboardLayout({
           </div>
         ) : null}
       </aside>
-      <main className="min-w-0 flex-1 overflow-y-auto p-4">{children}</main>
+      <main className="min-h-0 min-w-0 flex-1 overflow-y-auto p-4">{children}</main>
     </div>
   );
 }

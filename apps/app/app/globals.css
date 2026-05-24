@@ -62,9 +62,23 @@
     --destructive-foreground: 40 25% 92%;
     --border: 220 8% 28%;
     --input: 220 8% 28%;
+    --input-text: 220 8% 12%;
+    --input-background: 0 0% 98%;
     --ring: 40 20% 75%;
     --popover: 220 8% 20%;
     --popover-foreground: 40 25% 92%;
+  }
+
+  .dashboard-shell input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+  .dashboard-shell textarea,
+  .dashboard-shell select {
+    color: hsl(var(--input-text));
+    background-color: hsl(var(--input-background));
+  }
+
+  .dashboard-shell input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"])::placeholder,
+  .dashboard-shell textarea::placeholder {
+    color: hsl(220 8% 45%);
   }
 }
 

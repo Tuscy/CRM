@@ -192,10 +192,10 @@ export default function PrivacyPolicyPage() {
               For privacy-related questions about this Service, contact the platform administrator
               at{" "}
               <a
-                href="mailto:privacy@stkysites.com"
+                href="mailto:rhyse@stkysites.com"
                 className="text-primary underline-offset-4 hover:underline"
               >
-                privacy@stkysites.com
+                rhyse@stkysites.com
               </a>
               .
             </p>

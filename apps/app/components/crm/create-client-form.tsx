@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Button, Card, CardContent, CardHeader, CardTitle } from "@stky/ui";
 import { createClient } from "@/lib/server/actions/clients";
 
@@ -151,6 +152,7 @@ export function CreateClientForm() {
           | undefined,
         services: services as ("BRANDING" | "WEB" | "ADS")[],
       });
+      toast.success("Client created");
       router.push(`/dashboard/clients/${client.id}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to create client");

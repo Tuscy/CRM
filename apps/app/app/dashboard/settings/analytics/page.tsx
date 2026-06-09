@@ -21,10 +21,10 @@ export default async function AnalyticsSettingsPage({
     <div className="space-y-6 max-w-4xl">
       <div>
         <Link
-          href="/dashboard/reporting"
+          href="/dashboard/settings"
           className="text-sm text-muted-foreground hover:text-foreground"
         >
-          ← Back to Reporting
+          ← Back to Settings
         </Link>
         <h1 className="text-2xl font-bold mt-1">Analytics settings</h1>
         <p className="text-sm text-muted-foreground mt-1">

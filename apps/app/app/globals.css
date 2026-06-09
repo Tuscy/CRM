@@ -82,6 +82,13 @@
   }
 }
 
+/* Suppress page-level scroll so the dashboard shell's internal overflow-y-auto takes over */
+html,
+body {
+  overflow: hidden;
+  height: 100%;
+}
+
 body {
   @apply bg-background text-foreground antialiased;
 }

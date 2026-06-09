@@ -58,7 +58,7 @@ export default async function GoogleAdsPage({
           </p>
         </div>
         <Link
-          href="/dashboard/google-ads/settings"
+          href="/dashboard/settings"
           className="text-sm text-muted-foreground hover:text-foreground underline"
         >
           Settings

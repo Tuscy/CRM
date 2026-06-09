@@ -104,6 +104,10 @@ export async function getClientById(id: string) {
         orderBy: { createdAt: "desc" },
         take: 50,
       },
+      siteBuilds: {
+        include: { createdBy: true },
+        orderBy: { createdAt: "desc" },
+      },
     },
   });
 }

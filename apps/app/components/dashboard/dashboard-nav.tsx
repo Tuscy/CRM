@@ -15,7 +15,7 @@ export const DASHBOARD_NAV_ITEMS = [
   { href: "/dashboard/google-ads", label: "Google Ads" },
   { href: "/dashboard/reporting", label: "Reporting" },
   { href: "/dashboard/automations", label: "Automations" },
-  { href: "/dashboard/settings/api-keys", label: "API keys" },
+  { href: "/dashboard/settings", label: "Settings" },
 ] as const;
 
 function isActive(pathname: string, href: string) {

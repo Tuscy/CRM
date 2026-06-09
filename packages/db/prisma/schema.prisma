@@ -26,6 +26,7 @@ model User {
   assignedTasks   Task[]        @relation("TaskAssignee")
   activityLogs    ActivityLog[]
   createdInvoices Invoice[]
+  siteBuilds      SiteBuild[]
 }
 
 // Auth.js — forward-compatible (OAuth / database sessions); staff currently uses JWT + Credentials
@@ -158,6 +159,7 @@ model Client {
   analytics            AnalyticsConnection[]
   sites                Site[]
   googleAdsConnections GoogleAdsConnection[]
+  siteBuilds           SiteBuild[]
 }
 
 model GoogleAdsSettings {
@@ -364,4 +366,40 @@ model AnalyticsCredential {
 
   @@index([clientId])
   @@unique([clientId, type])
+}
+
+// --- Phase 5 additions ---
+
+enum ContentMode {
+  LOCAL
+  SANITY
+}
+
+enum SiteBuildStatus {
+  DRAFT
+  IN_PROGRESS
+  COMPLETE
+  PAUSED
+}
+
+model SiteBuild {
+  id               String          @id @default(cuid())
+  clientId         String
+  client           Client          @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  projectName      String
+  repoName         String?
+  figmaUrl         String?
+  contentMode      ContentMode     @default(LOCAL)
+  sanityProjectId  String?
+  sanityDataset    String?
+  requiredRoutes   String?
+  notes            String?
+  status           SiteBuildStatus @default(DRAFT)
+  currentStage     Int             @default(0)
+  createdById      String
+  createdBy        User            @relation(fields: [createdById], references: [id])
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  @@index([clientId])
 }

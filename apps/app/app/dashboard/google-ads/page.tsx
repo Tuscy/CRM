@@ -13,10 +13,6 @@ export default async function GoogleAdsPage({
 }: {
   searchParams: Record<string, string | string[] | undefined>;
 }) {
-  const adsCustomerId =
-    typeof searchParams.adsCustomerId === "string"
-      ? searchParams.adsCustomerId
-      : undefined;
   const clientId =
     typeof searchParams.clientId === "string"
       ? searchParams.clientId
@@ -27,6 +23,18 @@ export default async function GoogleAdsPage({
     listGoogleAdsConnections(),
     getClients(),
   ]);
+
+  // Auto-select Ads account when clientId has exactly one linked connection
+  let resolvedCustomerId =
+    typeof searchParams.adsCustomerId === "string"
+      ? searchParams.adsCustomerId
+      : undefined;
+  if (!resolvedCustomerId && clientId) {
+    const linked = connections.filter((c) => c.clientId === clientId);
+    if (linked.length === 1) {
+      resolvedCustomerId = linked[0].googleAdsCustomerId;
+    }
+  }
 
   let accessibleCustomers: { customerId: string }[] = [];
   if (env.ready) {
@@ -61,7 +69,7 @@ export default async function GoogleAdsPage({
         connections={connections}
         accessibleCustomers={accessibleCustomers}
         clients={clients.map((c) => ({ id: c.id, name: c.name }))}
-        initialCustomerId={adsCustomerId}
+        initialCustomerId={resolvedCustomerId}
         initialClientFilter={clientId}
         envReady={env.ready}
       />

@@ -38,12 +38,32 @@ export async function updateDealStage(dealId: string, stage: string) {
   return deal;
 }
 
-export async function createDeal(leadId: string, stage: string, value?: number) {
+export async function createDeal(
+  leadId: string,
+  stage: string,
+  value?: number,
+  opts?: {
+    closeDate?: Date;
+    probability?: number;
+    packageType?: "VOLTAGE" | "CHARGE" | "GRID";
+  }
+) {
   if (!isValidDealStage(stage)) {
     throw new Error("Invalid deal stage");
   }
+  let probability = opts?.probability;
+  if (probability != null) {
+    probability = Math.min(100, Math.max(0, Math.round(probability)));
+  }
   const deal = await prisma.deal.create({
-    data: { leadId, stage, value },
+    data: {
+      leadId,
+      stage,
+      value,
+      closeDate: opts?.closeDate,
+      probability,
+      packageType: opts?.packageType,
+    },
     include: { lead: true },
   });
   await notifyDealCreated(deal);

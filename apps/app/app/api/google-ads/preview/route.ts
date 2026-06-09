@@ -3,20 +3,21 @@ import { requireAutomationAuth } from "@/lib/api-auth";
 
 export const dynamic = "force-dynamic";
 
-/**
- * Phase 4 stub — writes go through Python sandbox (google-ads/scripts/python).
- * See CRM/docs/google-ads.md and google-ads/docs/CRM-INTEGRATION.md.
- */
+/** @deprecated Use POST /api/google-ads/rsa/preview or /api/google-ads/negatives/preview */
 export async function POST(request: NextRequest) {
   if (!(await requireAutomationAuth(request, "POST /api/google-ads/preview"))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   return NextResponse.json(
     {
-      error: "Not implemented",
+      error: "Gone",
       message:
-        "Google Ads write preview is planned for phase 4 (Python bridge). Use google-ads/scripts/python/write/* locally until then.",
+        "This endpoint is retired. Use POST /api/google-ads/rsa/preview or POST /api/google-ads/negatives/preview instead.",
+      alternatives: [
+        "/api/google-ads/rsa/preview",
+        "/api/google-ads/negatives/preview",
+      ],
     },
-    { status: 501 }
+    { status: 410 }
   );
 }

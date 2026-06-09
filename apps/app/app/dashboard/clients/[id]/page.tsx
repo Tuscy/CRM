@@ -1,7 +1,20 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getClientById } from "@/lib/server/actions/clients";
+import { EditClientPackageForm } from "@/components/crm/edit-client-package-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@stky/ui";
+
+const PACKAGE_LABELS: Record<string, string> = {
+  VOLTAGE: "Voltage",
+  CHARGE: "Charge",
+  GRID: "Grid",
+};
+
+const SERVICE_LABELS: Record<string, string> = {
+  BRANDING: "Branding",
+  WEB: "Web",
+  ADS: "Google Ads",
+};
 
 export default async function ClientDetailPage({
   params,
@@ -22,17 +35,43 @@ export default async function ClientDetailPage({
           >
             ← Back to clients
           </Link>
-          <h1 className="text-2xl font-bold mt-1">{client.name}</h1>
+          <div className="flex flex-wrap items-center gap-3 mt-1">
+            <h1 className="text-2xl font-bold">{client.name}</h1>
+            {client.package ? (
+              <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                {PACKAGE_LABELS[client.package] ?? client.package}
+              </span>
+            ) : null}
+          </div>
           {client.companyName ? (
             <p className="text-sm text-muted-foreground">{client.companyName}</p>
           ) : null}
           <p className="text-sm text-muted-foreground">
             {client.primaryContactEmail}
           </p>
+          {client.services.length > 0 ? (
+            <div className="flex flex-wrap gap-1.5 mt-2">
+              {client.services.map((s) => (
+                <span
+                  key={s.id}
+                  className="inline-flex items-center rounded-md bg-muted px-2 py-0.5 text-xs font-medium"
+                >
+                  {SERVICE_LABELS[s.type] ?? s.type}
+                </span>
+              ))}
+            </div>
+          ) : null}
         </div>
       </div>
+
+      <EditClientPackageForm
+        clientId={client.id}
+        initialPackage={client.package}
+        initialServices={client.services.map((s) => s.type)}
+      />
+
       {(client.industry ||
-        client.services ||
+        client.serviceNotes ||
         client.contactPhone ||
         client.contactAddress ||
         client.companiesHouseNumber ||
@@ -49,11 +88,11 @@ export default async function ClientDetailPage({
                 <p className="text-muted-foreground">{client.industry}</p>
               </div>
             ) : null}
-            {client.services ? (
+            {client.serviceNotes ? (
               <div className="sm:col-span-2">
-                <span className="font-medium">Services</span>
+                <span className="font-medium">Service notes</span>
                 <p className="text-muted-foreground whitespace-pre-wrap">
-                  {client.services}
+                  {client.serviceNotes}
                 </p>
               </div>
             ) : null}
@@ -100,6 +139,7 @@ export default async function ClientDetailPage({
           </CardContent>
         </Card>
       )}
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader>
@@ -129,16 +169,23 @@ export default async function ClientDetailPage({
             <CardTitle>Analytics</CardTitle>
           </CardHeader>
           <CardContent>
-            {client.analytics.length === 0 ? (
+            {client.analyticsCredentials.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                No GA4 connection yet. Configure a property ID and OAuth tokens in
-                the database to enable analytics.
+                No GA4 or Search Console credentials.{" "}
+                <Link
+                  href="/dashboard/settings/analytics"
+                  className="underline hover:text-foreground"
+                >
+                  Connect in settings
+                </Link>
+                .
               </p>
             ) : (
               <ul className="text-sm text-muted-foreground space-y-1">
-                {client.analytics.map((a) => (
+                {client.analyticsCredentials.map((a) => (
                   <li key={a.id}>
-                    Property: <span className="font-mono">{a.gaPropertyId}</span>
+                    {a.type === "GA4" ? "GA4" : "Search Console"}:{" "}
+                    <span className="font-mono">{a.accountId}</span>
                   </li>
                 ))}
               </ul>
@@ -183,12 +230,52 @@ export default async function ClientDetailPage({
                     </span>
                   </li>
                 ))}
+                <li>
+                  <Link
+                    href={`/dashboard/google-ads?clientId=${client.id}`}
+                    className="text-xs underline hover:text-foreground"
+                  >
+                    View Google Ads →
+                  </Link>
+                </li>
               </ul>
             )}
           </CardContent>
         </Card>
       </div>
+
+      {client.activityLogs.length > 0 ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Activity</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ol className="relative border-l border-muted ml-2 space-y-4">
+              {client.activityLogs.map((log) => (
+                <li key={log.id} className="ml-4">
+                  <span className="absolute -left-1.5 mt-1.5 h-3 w-3 rounded-full border border-background bg-muted-foreground/40" />
+                  <div className="flex flex-wrap items-baseline gap-2">
+                    <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      {log.type.replace(/_/g, " ")}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {log.actor.name ?? log.actor.email}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {new Date(log.createdAt).toLocaleString()}
+                    </span>
+                  </div>
+                  {log.body ? (
+                    <p className="mt-1 text-sm text-foreground whitespace-pre-wrap">
+                      {log.body}
+                    </p>
+                  ) : null}
+                </li>
+              ))}
+            </ol>
+          </CardContent>
+        </Card>
+      ) : null}
     </div>
   );
 }
-

@@ -16,10 +16,15 @@ export default async function AnalyticsPage() {
   // Optional: show GA4 metrics for a default client if configured.
   let gaSummary: { totalUsers: number; sessions: number } | null = null;
   try {
-    const defaultClient = await prisma.analyticsConnection.findFirst();
-    if (defaultClient) {
+    const clientCred = await prisma.analyticsCredential.findFirst({
+      where: { type: "GA4", clientId: { not: null } },
+    });
+    const orgCred = await prisma.analyticsCredential.findFirst({
+      where: { type: "GA4", clientId: null },
+    });
+    if (clientCred || orgCred) {
       const analytics = await getClientAnalytics({
-        clientId: defaultClient.clientId,
+        clientId: clientCred?.clientId ?? null,
         startDate: "30daysAgo",
         endDate: "today",
       });

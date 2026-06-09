@@ -12,17 +12,20 @@ datasource db {
 }
 
 model User {
-  id            String       @id @default(cuid())
-  name          String?
-  email         String       @unique
-  emailVerified DateTime?
-  image         String?
-  passwordHash  String?
-  isStaff       Boolean      @default(false)
-  createdAt     DateTime     @default(now())
-  accounts      Account[]
-  sessions      Session[]
-  memberships   Membership[]
+  id              String        @id @default(cuid())
+  name            String?
+  email           String        @unique
+  emailVerified   DateTime?
+  image           String?
+  passwordHash    String?
+  isStaff         Boolean       @default(false)
+  createdAt       DateTime      @default(now())
+  accounts        Account[]
+  sessions        Session[]
+  memberships     Membership[]
+  assignedTasks   Task[]        @relation("TaskAssignee")
+  activityLogs    ActivityLog[]
+  createdInvoices Invoice[]
 }
 
 // Auth.js — forward-compatible (OAuth / database sessions); staff currently uses JWT + Credentials
@@ -80,6 +83,7 @@ model Lead {
   id        String   @id @default(cuid())
   name      String
   email     String
+  phone     String?
   company   String?
   website   String?
   source    String?
@@ -96,21 +100,28 @@ model Lead {
 }
 
 model Deal {
-  id        String   @id @default(cuid())
-  value     Int?
-  stage     String
-  leadId    String
-  createdAt DateTime @default(now())
-  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  id          String       @id @default(cuid())
+  value       Int?
+  stage       String
+  leadId      String
+  createdAt   DateTime     @default(now())
+  closeDate   DateTime?
+  probability Int?
+  packageType PackageType?
+  lead        Lead         @relation(fields: [leadId], references: [id], onDelete: Cascade)
 }
 
 model Task {
-  id        String    @id @default(cuid())
-  title     String
-  dueDate   DateTime?
-  completed Boolean   @default(false)
-  leadId    String
-  lead      Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  id          String    @id @default(cuid())
+  title       String
+  dueDate     DateTime?
+  completed   Boolean   @default(false)
+  leadId      String
+  assigneeId  String?
+  lead        Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  assignee    User?     @relation("TaskAssignee", fields: [assigneeId], references: [id])
+
+  @@index([assigneeId])
 }
 
 model Note {
@@ -122,22 +133,26 @@ model Note {
 }
 
 model Client {
-  id                    String   @id @default(cuid())
-  name                  String
-  companyName           String?
-  companiesHouseNumber  String?  @unique
-  industry              String?
-  services            String?
-  primaryContactEmail String
-  contactPhone        String?
-  contactAddress      String?
-  billingPeriod       String?
-  billingPrice        Decimal? @db.Decimal(12, 2)
-  billingCurrency     String?  @default("USD")
-  billingNotes        String?
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
-
+  id                   String       @id @default(cuid())
+  name                 String
+  companyName          String?
+  companiesHouseNumber String?      @unique
+  industry             String?
+  serviceNotes         String?      @map("services")
+  primaryContactEmail  String
+  contactPhone         String?
+  contactAddress       String?
+  billingPeriod        String?
+  billingPrice         Decimal?     @db.Decimal(12, 2)
+  billingCurrency      String?      @default("USD")
+  billingNotes         String?
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+  package              PackageType?
+  services             ClientService[]
+  activityLogs         ActivityLog[]
+  invoices             Invoice[]
+  analyticsCredentials AnalyticsCredential[]
   leads                Lead[]
   memberships          Membership[]
   analytics            AnalyticsConnection[]
@@ -260,4 +275,93 @@ model AnalyticsConnection {
   client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
   @@index([clientId])
+}
+
+// --- Phase 1 additions ---
+
+enum ServiceType {
+  BRANDING
+  WEB
+  ADS
+}
+
+enum PackageType {
+  VOLTAGE
+  CHARGE
+  GRID
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum AnalyticsCredType {
+  GA4
+  SEARCH_CONSOLE
+}
+
+model ClientService {
+  id        String      @id @default(cuid())
+  clientId  String
+  client    Client      @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  type      ServiceType
+  active    Boolean     @default(true)
+  startedAt DateTime    @default(now())
+
+  @@index([clientId])
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  type      String
+  body      String?
+  actorId   String
+  actor     User     @relation(fields: [actorId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@index([clientId])
+  @@index([createdAt])
+}
+
+model Invoice {
+  id          String        @id @default(cuid())
+  number      String        @unique
+  clientId    String
+  client      Client        @relation(fields: [clientId], references: [id])
+  status      InvoiceStatus @default(DRAFT)
+  issuedAt    DateTime      @default(now())
+  dueAt       DateTime
+  lineItems   Json
+  subtotal    Float
+  vatRate     Float         @default(0.20)
+  total       Float
+  pdfUrl      String?
+  sentAt      DateTime?
+  createdById String
+  createdBy   User          @relation(fields: [createdById], references: [id])
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([clientId])
+  @@index([status])
+}
+
+model AnalyticsCredential {
+  id           String            @id @default(cuid())
+  clientId     String?
+  client       Client?           @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  type         AnalyticsCredType
+  accountId    String
+  refreshToken String
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  @@index([clientId])
+  @@unique([clientId, type])
 }

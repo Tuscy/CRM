@@ -5,7 +5,10 @@ import Link from "next/link";
 import { Button } from "@stky/ui";
 import { Card, CardContent, CardHeader, CardTitle } from "@stky/ui";
 import type { GoogleAdsDashboard } from "@/lib/google-ads/types";
-import { formatMoney, formatCtr, formatPercent } from "@/lib/google-ads/format";
+import { OverviewTab } from "@/components/google-ads/tabs/overview-tab";
+import { KeywordsTab } from "@/components/google-ads/tabs/keywords-tab";
+import { SearchTermsTab } from "@/components/google-ads/tabs/search-terms-tab";
+import { AdCopyTab } from "@/components/google-ads/tabs/ad-copy-tab";
 
 type ConnectionOption = {
   googleAdsCustomerId: string;
@@ -18,6 +21,15 @@ type ConnectionOption = {
 type AccessibleOption = {
   customerId: string;
 };
+
+type TabId = "overview" | "keywords" | "search-terms" | "ad-copy";
+
+const TABS: { id: TabId; label: string }[] = [
+  { id: "overview", label: "Overview" },
+  { id: "keywords", label: "Keywords" },
+  { id: "search-terms", label: "Search Terms" },
+  { id: "ad-copy", label: "Ad Copy" },
+];
 
 export function GoogleAdsDashboardView({
   connections,
@@ -41,6 +53,7 @@ export function GoogleAdsDashboardView({
   const [data, setData] = useState<GoogleAdsDashboard | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<TabId>("overview");
 
   const accountOptions = useMemo(() => {
     const map = new Map<string, string>();
@@ -103,7 +116,7 @@ export function GoogleAdsDashboardView({
 
   useEffect(() => {
     if (initialCustomerId && envReady) {
-      loadDashboard(initialCustomerId);
+      void loadDashboard(initialCustomerId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- initial load only
   }, [initialCustomerId, envReady]);
@@ -130,6 +143,7 @@ export function GoogleAdsDashboardView({
 
   return (
     <div className="space-y-6">
+      {/* ── Account selector card (unchanged) ─────────────────────────── */}
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-base">Account</CardTitle>
@@ -157,7 +171,7 @@ export function GoogleAdsDashboardView({
               onChange={(e) => {
                 setSelectedId(e.target.value);
                 setManualId(e.target.value);
-                if (e.target.value) loadDashboard(e.target.value);
+                if (e.target.value) void loadDashboard(e.target.value);
               }}
               className="mt-1 w-full rounded-md border px-3 py-2 text-sm bg-background"
             >
@@ -186,7 +200,7 @@ export function GoogleAdsDashboardView({
                 const d = Number(e.target.value);
                 setDays(d);
                 const id = manualId || selectedId;
-                if (id.length >= 10) loadDashboard(id);
+                if (id.length >= 10) void loadDashboard(id);
               }}
               className="mt-1 w-full rounded-md border px-3 py-2 text-sm bg-background"
             >
@@ -197,7 +211,7 @@ export function GoogleAdsDashboardView({
           </div>
           <Button
             type="button"
-            onClick={() => loadDashboard(manualId, true)}
+            onClick={() => void loadDashboard(manualId, true)}
             disabled={loading}
           >
             {loading ? "Loading…" : "Load"}
@@ -205,163 +219,79 @@ export function GoogleAdsDashboardView({
         </CardContent>
       </Card>
 
+      {/* ── Error display (unchanged) ──────────────────────────────────── */}
       {error && (
         <p className="text-sm text-destructive" role="alert">
           {error}
         </p>
       )}
 
+      {/* ── Data area with tabs ────────────────────────────────────────── */}
       {data && (
         <>
+          {/* Account name / date range header */}
           <div className="flex flex-wrap items-baseline gap-2">
-            <h2 className="text-lg font-semibold">{data.account.descriptiveName}</h2>
+            <h2 className="text-lg font-semibold">
+              {data.account.descriptiveName}
+            </h2>
             <span className="text-sm text-muted-foreground font-mono">
               {data.account.customerId}
             </span>
             <span className="text-xs text-muted-foreground">
               {data.dateRange.label}
-              {data.cachedAt ? ` · cached ${new Date(data.cachedAt).toLocaleTimeString()}` : ""}
+              {data.cachedAt
+                ? ` · cached ${new Date(data.cachedAt).toLocaleTimeString()}`
+                : ""}
             </span>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-            <MetricCard title="Impressions" value={data.summary.impressions.toLocaleString()} />
-            <MetricCard title="Clicks" value={data.summary.clicks.toLocaleString()} />
-            <MetricCard title="CTR" value={formatCtr(data.summary.ctr)} />
-            <MetricCard
-              title="Avg CPC"
-              value={formatMoney(data.summary.averageCpc, currency)}
-            />
-            <MetricCard
-              title="Cost"
-              value={formatMoney(data.summary.cost, currency)}
-            />
-            <MetricCard
-              title="Conversions"
-              value={data.summary.conversions.toLocaleString()}
-            />
+          {/* Tab bar */}
+          <div className="flex gap-1 border-b">
+            {TABS.map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id)}
+                className={[
+                  "px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors",
+                  activeTab === tab.id
+                    ? "border-primary text-primary"
+                    : "border-transparent text-muted-foreground hover:text-foreground",
+                ].join(" ")}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Campaigns</CardTitle>
-            </CardHeader>
-            <CardContent className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b text-left text-muted-foreground">
-                    <th className="py-2 pr-3">Name</th>
-                    <th className="py-2 pr-3">Status</th>
-                    <th className="py-2 pr-3">Clicks</th>
-                    <th className="py-2 pr-3">CTR</th>
-                    <th className="py-2 pr-3">Cost</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.campaigns.length === 0 ? (
-                    <tr>
-                      <td colSpan={5} className="py-3 text-muted-foreground">
-                        No campaign data for this period.
-                      </td>
-                    </tr>
-                  ) : (
-                    data.campaigns.map((c) => (
-                      <tr key={c.id} className="border-b">
-                        <td className="py-2 pr-3">{c.name}</td>
-                        <td className="py-2 pr-3">{c.status}</td>
-                        <td className="py-2 pr-3">{c.clicks}</td>
-                        <td className="py-2 pr-3">{formatCtr(c.ctr)}</td>
-                        <td className="py-2 pr-3">{formatMoney(c.cost, currency)}</td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </CardContent>
-          </Card>
+          {/* Tab content — lazy per tab */}
+          {activeTab === "overview" && <OverviewTab data={data} />}
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">
-                Keywords ({data.keywords.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="overflow-x-auto max-h-96">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b text-left text-muted-foreground sticky top-0 bg-card">
-                    <th className="py-2 pr-3">Keyword</th>
-                    <th className="py-2 pr-3">Match</th>
-                    <th className="py-2 pr-3">Campaign</th>
-                    <th className="py-2 pr-3">Ad group</th>
-                    <th className="py-2 pr-3">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.keywords.map((k, i) => (
-                    <tr key={`${k.criterionId}-${i}`} className="border-b">
-                      <td className="py-2 pr-3">{k.text}</td>
-                      <td className="py-2 pr-3">{k.matchType}</td>
-                      <td className="py-2 pr-3">{k.campaign}</td>
-                      <td className="py-2 pr-3">{k.adGroup}</td>
-                      <td className="py-2 pr-3">{k.status}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </CardContent>
-          </Card>
-
-          {data.negatives.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">
-                  Campaign negatives ({data.negatives.length})
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="overflow-x-auto max-h-48">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b text-left text-muted-foreground">
-                      <th className="py-2 pr-3">Keyword</th>
-                      <th className="py-2 pr-3">Match</th>
-                      <th className="py-2 pr-3">Campaign ID</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data.negatives.map((n, i) => (
-                      <tr key={`${n.criterionId}-${i}`} className="border-b">
-                        <td className="py-2 pr-3">{n.text}</td>
-                        <td className="py-2 pr-3">{n.matchType}</td>
-                        <td className="py-2 pr-3 font-mono">{n.campaignId}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </CardContent>
-            </Card>
+          {activeTab === "keywords" && (
+            <KeywordsTab
+              customerId={selectedId}
+              days={days}
+              campaigns={data.campaigns}
+              currency={currency}
+            />
           )}
 
-          <p className="text-xs text-muted-foreground">
-            Conversion rate (clicks): {formatPercent(data.summary.conversionRate)}
-          </p>
+          {activeTab === "search-terms" && (
+            <SearchTermsTab
+              customerId={selectedId}
+              days={days}
+              campaigns={data.campaigns}
+            />
+          )}
+
+          {activeTab === "ad-copy" && (
+            <AdCopyTab
+              customerId={selectedId}
+              campaigns={data.campaigns}
+            />
+          )}
         </>
       )}
     </div>
-  );
-}
-
-function MetricCard({ title, value }: { title: string; value: string }) {
-  return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">
-          {title}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <p className="text-2xl font-bold">{value}</p>
-      </CardContent>
-    </Card>
   );
 }

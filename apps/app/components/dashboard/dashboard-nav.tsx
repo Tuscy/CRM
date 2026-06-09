@@ -13,6 +13,7 @@ export const DASHBOARD_NAV_ITEMS = [
   { href: "/dashboard/tasks", label: "Tasks" },
   { href: "/dashboard/analytics", label: "Analytics" },
   { href: "/dashboard/google-ads", label: "Google Ads" },
+  { href: "/dashboard/reporting", label: "Reporting" },
   { href: "/dashboard/automations", label: "Automations" },
   { href: "/dashboard/settings/api-keys", label: "API keys" },
 ] as const;

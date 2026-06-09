@@ -74,7 +74,7 @@ export async function getLeadById(id: string) {
     where: { id },
     include: {
       deals: true,
-      tasks: true,
+      tasks: { include: { assignee: true } },
       notes: true,
     },
   });

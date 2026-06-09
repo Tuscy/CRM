@@ -34,6 +34,7 @@ export function CreateClientForm() {
   const [hasSearched, setHasSearched] = useState(false);
   const [loadingProfile, setLoadingProfile] = useState(false);
   const [chConfirmed, setChConfirmed] = useState(false);
+  const [services, setServices] = useState<string[]>([]);
 
   async function handleSearch() {
     const q = companySearch.trim();
@@ -135,7 +136,7 @@ export function CreateClientForm() {
         companyName: companyName || undefined,
         companiesHouseNumber: companiesHouseNumber || undefined,
         industry: industry || undefined,
-        services: (formData.get("services") as string) || undefined,
+        serviceNotes: (formData.get("serviceNotes") as string) || undefined,
         primaryContactEmail: formData.get("primaryContactEmail") as string,
         contactPhone: (formData.get("contactPhone") as string) || undefined,
         contactAddress: contactAddress || undefined,
@@ -143,6 +144,12 @@ export function CreateClientForm() {
         billingPrice: (formData.get("billingPrice") as string) || undefined,
         billingCurrency: (formData.get("billingCurrency") as string) || undefined,
         billingNotes: (formData.get("billingNotes") as string) || undefined,
+        package: ((formData.get("package") as string) || undefined) as
+          | "VOLTAGE"
+          | "CHARGE"
+          | "GRID"
+          | undefined,
+        services: services as ("BRANDING" | "WEB" | "ADS")[],
       });
       router.push(`/dashboard/clients/${client.id}`);
     } catch (e) {
@@ -291,13 +298,49 @@ export function CreateClientForm() {
               />
             </div>
             <div>
-              <label className={labelClass}>Services</label>
+              <label className={labelClass}>Service notes</label>
               <textarea
-                name="services"
+                name="serviceNotes"
                 rows={3}
                 placeholder="e.g. Web design, SEO, Google Ads"
                 className={inputClass}
               />
+            </div>
+            <div>
+              <label className={labelClass}>Package</label>
+              <select name="package" className={inputClass} defaultValue="">
+                <option value="">None</option>
+                <option value="VOLTAGE">Voltage</option>
+                <option value="CHARGE">Charge</option>
+                <option value="GRID">Grid</option>
+              </select>
+            </div>
+            <div>
+              <p className={labelClass}>Active services</p>
+              <div className="flex flex-wrap gap-3 mt-1">
+                {(
+                  [
+                    ["BRANDING", "Branding"],
+                    ["WEB", "Web"],
+                    ["ADS", "Google Ads"],
+                  ] as const
+                ).map(([value, label]) => (
+                  <label key={value} className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={services.includes(value)}
+                      onChange={() =>
+                        setServices((prev) =>
+                          prev.includes(value)
+                            ? prev.filter((s) => s !== value)
+                            : [...prev, value]
+                        )
+                      }
+                    />
+                    {label}
+                  </label>
+                ))}
+              </div>
             </div>
           </fieldset>
 
@@ -357,7 +400,7 @@ export function CreateClientForm() {
               <label className={labelClass}>Currency</label>
               <input
                 name="billingCurrency"
-                defaultValue="USD"
+                defaultValue="GBP"
                 placeholder="USD"
                 className={`${inputClass} max-w-[8rem]`}
               />

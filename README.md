@@ -90,13 +90,13 @@ If these are unset, the Automations page shows setup instructions instead of fai
 - **Rotate** `N8N_API_KEY` if it leaks; pin n8n Docker image/version and verify API compatibility after upgrades (`/api/v1/docs` on your instance).
 - **Webhooks:** inbound CRM events still use `CRM_WEBHOOK_URL` / `CRM_WEBHOOK_SECRET`; webhook workflows must stay **active** in n8n to receive events.
 
-## Analytics (GA4)
+## Analytics (GA4 & Search Console)
 
-- **`AnalyticsConnection`** rows store `gaPropertyId` and OAuth **`refreshToken`** for server-side GA4 Data API calls.
-- Configure **`GOOGLE_CLIENT_ID`**, **`GOOGLE_CLIENT_SECRET`**, and **`GOOGLE_OAUTH_REDIRECT_URL`** in Google Cloud Console for the OAuth client used to obtain refresh tokens (see `apps/app/lib/analytics/ga4.ts`).
-- **`GET /api/analytics`**: without `clientId`, requires **client portal** session (`membershipId` cookie). With `clientId`, requires **staff session** or **integration / legacy API key** with `analytics:read` scope (or legacy env key).
-
-Staff dashboard analytics uses the first `AnalyticsConnection` if present; client-scoped analytics should go through the portal or authenticated API.
+- **`AnalyticsCredential`** (canonical) stores encrypted OAuth **`refreshToken`**, property/site **`accountId`**, and optional **`clientId`** (null = org-level fallback). Connect via **`/dashboard/settings/analytics`**.
+- Legacy **`AnalyticsConnection`** is deprecated; new integrations should use **`AnalyticsCredential`** only.
+- Configure **`GOOGLE_CLIENT_ID`**, **`GOOGLE_CLIENT_SECRET`**, **`GOOGLE_OAUTH_REDIRECT_URL`**, and **`ENCRYPTION_KEY`** in `.env`.
+- Unified reporting: **`/dashboard/reporting`**. GA4/GSC API routes under **`/api/analytics/`**.
+- **`GET /api/analytics`**: without `clientId`, requires **client portal** session. With `clientId`, requires **staff session** or integration key with `analytics:read` scope.
 
 ## Google Ads
 

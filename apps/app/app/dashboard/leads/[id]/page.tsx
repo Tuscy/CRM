@@ -1,9 +1,18 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getLeadById } from "@/lib/server/actions/leads";
+import { getStaffUsers } from "@/lib/server/actions/tasks";
 import { Card, CardContent, CardHeader, CardTitle } from "@stky/ui";
 import { UpdateLeadForm } from "@/components/crm/update-lead-form";
 import { DeleteLeadButton } from "@/components/crm/delete-lead-button";
+import { CreateDealForm } from "@/components/crm/create-deal-form";
+import { CreateTaskForm } from "@/components/crm/create-task-form";
+
+const PACKAGE_LABELS: Record<string, string> = {
+  VOLTAGE: "Voltage",
+  CHARGE: "Charge",
+  GRID: "Grid",
+};
 
 export default async function LeadDetailPage({
   params,
@@ -11,7 +20,10 @@ export default async function LeadDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const lead = await getLeadById(id);
+  const [lead, staffUsers] = await Promise.all([
+    getLeadById(id),
+    getStaffUsers(),
+  ]);
   if (!lead) notFound();
 
   return (
@@ -32,19 +44,37 @@ export default async function LeadDetailPage({
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Deals</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle>Deals</CardTitle>
+              <CreateDealForm leadId={id} />
+            </div>
           </CardHeader>
           <CardContent>
             {lead.deals.length === 0 ? (
-              <p className="text-muted-foreground text-sm">No deals.</p>
+              <p className="text-muted-foreground text-sm">No deals yet.</p>
             ) : (
-              <ul className="space-y-2">
+              <ul className="space-y-3">
                 {lead.deals.map((d) => (
-                  <li key={d.id} className="flex justify-between text-sm">
-                    <span>{d.stage}</span>
-                    {d.value != null && (
-                      <span className="font-medium">${d.value.toLocaleString()}</span>
-                    )}
+                  <li key={d.id} className="rounded-md border p-3 text-sm space-y-1">
+                    <div className="flex justify-between">
+                      <span className="font-medium">{d.stage.replace(/_/g, " ")}</span>
+                      {d.value != null && (
+                        <span className="font-medium">£{d.value.toLocaleString()}</span>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+                      {d.packageType ? (
+                        <span>{PACKAGE_LABELS[d.packageType] ?? d.packageType} package</span>
+                      ) : null}
+                      {d.probability != null ? (
+                        <span>{d.probability}% probability</span>
+                      ) : null}
+                      {d.closeDate ? (
+                        <span>
+                          Close: {new Date(d.closeDate).toLocaleDateString()}
+                        </span>
+                      ) : null}
+                    </div>
                   </li>
                 ))}
               </ul>
@@ -53,20 +83,36 @@ export default async function LeadDetailPage({
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Tasks</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle>Tasks</CardTitle>
+              <CreateTaskForm leadId={id} staffUsers={staffUsers} />
+            </div>
           </CardHeader>
           <CardContent>
             {lead.tasks.length === 0 ? (
-              <p className="text-muted-foreground text-sm">No tasks.</p>
+              <p className="text-muted-foreground text-sm">No tasks yet.</p>
             ) : (
               <ul className="space-y-2">
                 {lead.tasks.map((t) => (
                   <li key={t.id} className="flex justify-between text-sm">
-                    <span className={t.completed ? "line-through text-muted-foreground" : ""}>
-                      {t.title}
-                    </span>
+                    <div>
+                      <span
+                        className={
+                          t.completed
+                            ? "line-through text-muted-foreground"
+                            : ""
+                        }
+                      >
+                        {t.title}
+                      </span>
+                      {t.assignee ? (
+                        <span className="ml-2 text-xs text-muted-foreground">
+                          → {t.assignee.name ?? t.assignee.email}
+                        </span>
+                      ) : null}
+                    </div>
                     {t.dueDate && (
-                      <span className="text-muted-foreground">
+                      <span className="text-muted-foreground text-xs">
                         {new Date(t.dueDate).toLocaleDateString()}
                       </span>
                     )}

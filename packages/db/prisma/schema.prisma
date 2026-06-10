@@ -160,6 +160,7 @@ model Client {
   sites                Site[]
   googleAdsConnections GoogleAdsConnection[]
   siteBuilds           SiteBuild[]
+  gbpPosts             GBPPost[]
 }
 
 model GoogleAdsSettings {
@@ -304,6 +305,7 @@ enum InvoiceStatus {
 enum AnalyticsCredType {
   GA4
   SEARCH_CONSOLE
+  GBP
 }
 
 model ClientService {
@@ -366,6 +368,38 @@ model AnalyticsCredential {
 
   @@index([clientId])
   @@unique([clientId, type])
+}
+
+// --- Phase 6 additions ---
+
+enum GBPPostType {
+  STANDARD
+  EVENT
+  OFFER
+}
+
+/// Local cache of Google Business Profile posts so the UI doesn't re-fetch on every load.
+model GBPPost {
+  id           String      @id @default(cuid())
+  clientId     String
+  client       Client      @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  googlePostId String      @unique // GBP localPost resource name
+  type         GBPPostType
+  summary      String // post body text
+  ctaType      String? // CALL, LEARN_MORE, ORDER, SIGN_UP, BUY, etc.
+  ctaUrl       String?
+  eventTitle   String?
+  eventStart   DateTime?
+  eventEnd     DateTime?
+  offerTitle   String?
+  offerCode    String?
+  state        String // LIVE | REJECTED | PROCESSING | DELETED
+  createTime   DateTime
+  updateTime   DateTime
+  searchUrl    String?
+  syncedAt     DateTime    @default(now())
+
+  @@index([clientId])
 }
 
 // --- Phase 5 additions ---

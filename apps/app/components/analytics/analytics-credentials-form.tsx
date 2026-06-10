@@ -7,16 +7,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@stky/ui";
 import { deleteAnalyticsCredential } from "@/lib/server/actions/analytics";
 import type { AnalyticsCredentialDto } from "@/lib/server/actions/analytics";
 
-type CredentialType = "GA4" | "SEARCH_CONSOLE";
+type CredentialType = "GA4" | "SEARCH_CONSOLE" | "GBP";
 
 const TYPE_LABELS: Record<CredentialType, string> = {
   GA4: "Google Analytics 4",
   SEARCH_CONSOLE: "Search Console",
+  GBP: "Business Profile",
 };
 
 const ACCOUNT_ID_LABELS: Record<CredentialType, string> = {
   GA4: "GA4 property ID (e.g. 123456789 or properties/123456789)",
   SEARCH_CONSOLE: "Site URL (e.g. https://example.com/ or sc-domain:example.com)",
+  GBP: "Location resource name (e.g. accounts/123/locations/456)",
 };
 
 export function AnalyticsCredentialsForm({
@@ -118,6 +120,7 @@ export function AnalyticsCredentialsForm({
               >
                 <option value="GA4">Google Analytics 4</option>
                 <option value="SEARCH_CONSOLE">Search Console</option>
+                <option value="GBP">Business Profile</option>
               </select>
             </div>
             <div>
@@ -171,6 +174,12 @@ export function AnalyticsCredentialsForm({
               — include trailing slash for URL-prefix properties (e.g.{" "}
               <code>https://example.com/</code>) or use{" "}
               <code>sc-domain:example.com</code> for domain properties.
+            </p>
+            <p>
+              <strong>Business Profile:</strong> The full location resource name{" "}
+              <code>accounts/&#123;accountId&#125;/locations/&#123;locationId&#125;</code>.
+              Find both IDs in the GBP API or business.google.com URL. Requires
+              GBP API access approval and the <code>business.manage</code> scope.
             </p>
           </div>
         </CardContent>

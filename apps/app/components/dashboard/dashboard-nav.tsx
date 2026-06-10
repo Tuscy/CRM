@@ -73,6 +73,14 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     type: "link",
+    href: "/dashboard/business-profile",
+    label: "Business Profile",
+    isActive: (pathname) =>
+      pathname === "/dashboard/business-profile" ||
+      pathname.startsWith("/dashboard/business-profile/"),
+  },
+  {
+    type: "link",
     href: "/dashboard/reporting",
     label: "Reporting",
     isActive: (pathname) =>

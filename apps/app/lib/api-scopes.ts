@@ -8,6 +8,7 @@ export const ApiScope = {
   ANALYTICS_READ: "analytics:read",
   GOOGLE_ADS_READ: "google-ads:read",
   GOOGLE_ADS_WRITE: "google-ads:write",
+  GBP_READ: "gbp:read",
 } as const;
 
 export type ApiScopeName = (typeof ApiScope)[keyof typeof ApiScope];

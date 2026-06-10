@@ -15,7 +15,7 @@ export type AnalyticsCredentialDto = {
   id: string;
   clientId: string | null;
   clientName: string | null;
-  type: "GA4" | "SEARCH_CONSOLE";
+  type: "GA4" | "SEARCH_CONSOLE" | "GBP";
   accountId: string;
   createdAt: string;
   updatedAt: string;
@@ -42,7 +42,7 @@ export async function listAnalyticsCredentials(): Promise<
 
 export async function saveAnalyticsCredential(input: {
   clientId?: string | null;
-  type: "GA4" | "SEARCH_CONSOLE";
+  type: "GA4" | "SEARCH_CONSOLE" | "GBP";
   accountId: string;
   refreshToken: string; // plain — encrypted here before storage
 }) {

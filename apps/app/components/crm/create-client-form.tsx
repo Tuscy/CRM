@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -20,6 +20,7 @@ type SearchResult = {
 
 export function CreateClientForm() {
   const router = useRouter();
+  const submittingRef = useRef(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -129,6 +130,8 @@ export function CreateClientForm() {
   }
 
   async function handleSubmit(formData: FormData) {
+    if (submittingRef.current) return;
+    submittingRef.current = true;
     setPending(true);
     setError(null);
     try {
@@ -156,6 +159,7 @@ export function CreateClientForm() {
       router.push(`/dashboard/clients/${client.id}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to create client");
+      submittingRef.current = false;
       setPending(false);
     }
   }
@@ -166,7 +170,11 @@ export function CreateClientForm() {
         <CardTitle>New client</CardTitle>
       </CardHeader>
       <CardContent>
-        <form action={handleSubmit} className="space-y-8 max-w-2xl">
+        <form
+          action={handleSubmit}
+          className="space-y-8 max-w-2xl"
+          aria-busy={pending}
+        >
           <fieldset className="space-y-4">
             <legend className="text-base font-semibold">Basic</legend>
             <div>
@@ -428,7 +436,11 @@ export function CreateClientForm() {
             <Button type="button" variant="outline" asChild>
               <Link href="/dashboard/clients">Cancel</Link>
             </Button>
-            <Button type="submit" disabled={pending || loadingProfile}>
+            <Button
+              type="submit"
+              disabled={pending || loadingProfile}
+              aria-disabled={pending || loadingProfile}
+            >
               {pending ? "Creating…" : "Create client"}
             </Button>
           </div>

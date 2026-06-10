@@ -1,13 +1,14 @@
 /**
  * GET /api/oauth/google
  *
- * Initiates a Google OAuth 2.0 flow to obtain a refresh token for GA4 or
- * Search Console. Staff-only — redirects straight to Google after verifying
- * a live staff session.
+ * Initiates a Google OAuth 2.0 flow to obtain a refresh token for GA4,
+ * Search Console, or Google Business Profile. Staff-only — redirects straight
+ * to Google after verifying a live staff session.
  *
  * Query params:
- *   type        "GA4" | "SEARCH_CONSOLE"
- *   accountId   GA4 property ID (e.g. "123456789") or GSC site URL
+ *   type        "GA4" | "SEARCH_CONSOLE" | "GBP"
+ *   accountId   GA4 property ID, GSC site URL, or GBP location resource name
+ *               (accounts/{accountId}/locations/{locationId})
  *   clientId    (optional) CRM client ID; omit for org-level credential
  */
 
@@ -18,6 +19,7 @@ import { auth } from "@/auth";
 const SCOPES: Record<string, string> = {
   GA4: "https://www.googleapis.com/auth/analytics.readonly",
   SEARCH_CONSOLE: "https://www.googleapis.com/auth/webmasters.readonly",
+  GBP: "https://www.googleapis.com/auth/business.manage",
 };
 
 export const dynamic = "force-dynamic";
@@ -33,9 +35,9 @@ export async function GET(request: NextRequest) {
   const accountId = searchParams.get("accountId")?.trim() ?? "";
   const clientId = searchParams.get("clientId")?.trim() || null;
 
-  if (type !== "GA4" && type !== "SEARCH_CONSOLE") {
+  if (type !== "GA4" && type !== "SEARCH_CONSOLE" && type !== "GBP") {
     return NextResponse.json(
-      { error: "type must be GA4 or SEARCH_CONSOLE" },
+      { error: "type must be GA4, SEARCH_CONSOLE, or GBP" },
       { status: 400 }
     );
   }

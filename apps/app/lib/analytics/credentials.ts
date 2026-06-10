@@ -1,7 +1,7 @@
 import { prisma } from "@stky/db";
 import { decrypt } from "@/lib/server/encrypt";
 
-export type AnalyticsCredType = "GA4" | "SEARCH_CONSOLE";
+export type AnalyticsCredType = "GA4" | "SEARCH_CONSOLE" | "GBP";
 
 export type ResolvedCredential = {
   id: string;

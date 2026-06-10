@@ -40,14 +40,18 @@ export async function GET(request: NextRequest) {
   }
 
   // Decode state
-  let type: "GA4" | "SEARCH_CONSOLE";
+  let type: "GA4" | "SEARCH_CONSOLE" | "GBP";
   let accountId: string;
   let clientId: string | null;
   try {
     const decoded = JSON.parse(
       Buffer.from(stateRaw, "base64url").toString("utf8")
     ) as { type: string; accountId: string; clientId: string | null };
-    if (decoded.type !== "GA4" && decoded.type !== "SEARCH_CONSOLE") {
+    if (
+      decoded.type !== "GA4" &&
+      decoded.type !== "SEARCH_CONSOLE" &&
+      decoded.type !== "GBP"
+    ) {
       throw new Error("invalid type");
     }
     type = decoded.type;

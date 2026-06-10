@@ -209,7 +209,8 @@ export default async function ClientDetailPage({
                 <CardTitle>Analytics</CardTitle>
               </CardHeader>
               <CardContent>
-                {client.analyticsCredentials.length === 0 ? (
+                {client.analyticsCredentials.filter((a) => a.type !== "GBP")
+                  .length === 0 ? (
                   <p className="text-sm text-muted-foreground">
                     No GA4 or Search Console credentials.{" "}
                     <Link
@@ -222,13 +223,50 @@ export default async function ClientDetailPage({
                   </p>
                 ) : (
                   <ul className="text-sm text-muted-foreground space-y-1">
-                    {client.analyticsCredentials.map((a) => (
-                      <li key={a.id}>
-                        {a.type === "GA4" ? "GA4" : "Search Console"}:{" "}
-                        <span className="font-mono">{a.accountId}</span>
-                      </li>
-                    ))}
+                    {client.analyticsCredentials
+                      .filter((a) => a.type !== "GBP")
+                      .map((a) => (
+                        <li key={a.id}>
+                          {a.type === "GA4" ? "GA4" : "Search Console"}:{" "}
+                          <span className="font-mono">{a.accountId}</span>
+                        </li>
+                      ))}
                   </ul>
+                )}
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Business Profile</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {!client.analyticsCredentials.some((a) => a.type === "GBP") ? (
+                  <p className="text-sm text-muted-foreground">
+                    No GBP location connected.{" "}
+                    <Link
+                      href="/dashboard/settings/analytics"
+                      className="underline hover:text-foreground"
+                    >
+                      Connect in settings
+                    </Link>
+                    .
+                  </p>
+                ) : (
+                  <div className="text-sm text-muted-foreground space-y-2">
+                    {client.analyticsCredentials
+                      .filter((a) => a.type === "GBP")
+                      .map((a) => (
+                        <p key={a.id} className="font-mono text-xs">
+                          {a.accountId}
+                        </p>
+                      ))}
+                    <Link
+                      href={`/dashboard/business-profile?clientId=${client.id}`}
+                      className="text-xs underline hover:text-foreground"
+                    >
+                      View GBP →
+                    </Link>
+                  </div>
                 )}
               </CardContent>
             </Card>

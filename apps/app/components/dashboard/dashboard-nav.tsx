@@ -4,21 +4,100 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@stky/ui/utils";
 
-export const DASHBOARD_NAV_ITEMS = [
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/dashboard/clients", label: "Clients" },
-  { href: "/dashboard/sites", label: "Sites" },
-  { href: "/dashboard/leads", label: "Leads" },
-  { href: "/dashboard/pipeline", label: "Pipeline" },
-  { href: "/dashboard/tasks", label: "Tasks" },
-  { href: "/dashboard/analytics", label: "Analytics" },
-  { href: "/dashboard/google-ads", label: "Google Ads" },
-  { href: "/dashboard/reporting", label: "Reporting" },
-  { href: "/dashboard/automations", label: "Automations" },
-  { href: "/dashboard/settings", label: "Settings" },
-] as const;
+type NavLink = {
+  type: "link";
+  href: string;
+  label: string;
+  isActive?: (pathname: string) => boolean;
+};
 
-function isActive(pathname: string, href: string) {
+type NavHeading = {
+  type: "heading";
+  label: string;
+};
+
+type NavItem = NavLink | NavHeading;
+
+const NAV_ITEMS: NavItem[] = [
+  {
+    type: "link",
+    href: "/dashboard",
+    label: "Dashboard",
+    isActive: (pathname) => pathname === "/dashboard",
+  },
+  { type: "heading", label: "Funnel" },
+  {
+    type: "link",
+    href: "/dashboard/pipeline",
+    label: "Overview",
+    isActive: (pathname) =>
+      pathname === "/dashboard/pipeline" ||
+      pathname.startsWith("/dashboard/pipeline/"),
+  },
+  {
+    type: "link",
+    href: "/dashboard/leads",
+    label: "Leads",
+    isActive: (pathname) =>
+      pathname === "/dashboard/leads" || pathname.startsWith("/dashboard/leads/"),
+  },
+  {
+    type: "link",
+    href: "/dashboard/tasks",
+    label: "Tasks",
+    isActive: (pathname) =>
+      pathname === "/dashboard/tasks" || pathname.startsWith("/dashboard/tasks/"),
+  },
+  {
+    type: "link",
+    href: "/dashboard/analytics",
+    label: "Analytics",
+    isActive: (pathname) => pathname === "/dashboard/analytics",
+  },
+  { type: "heading", label: "Clients" },
+  {
+    type: "link",
+    href: "/dashboard/clients",
+    label: "Client list",
+    isActive: (pathname) =>
+      pathname === "/dashboard/clients" ||
+      pathname.startsWith("/dashboard/clients/"),
+  },
+  {
+    type: "link",
+    href: "/dashboard/google-ads",
+    label: "Google Ads",
+    isActive: (pathname) =>
+      pathname === "/dashboard/google-ads" ||
+      pathname.startsWith("/dashboard/google-ads/"),
+  },
+  {
+    type: "link",
+    href: "/dashboard/reporting",
+    label: "Reporting",
+    isActive: (pathname) =>
+      pathname === "/dashboard/reporting" ||
+      pathname.startsWith("/dashboard/reporting/"),
+  },
+  {
+    type: "link",
+    href: "/dashboard/automations",
+    label: "Automations",
+    isActive: (pathname) =>
+      pathname === "/dashboard/automations" ||
+      pathname.startsWith("/dashboard/automations/"),
+  },
+  {
+    type: "link",
+    href: "/dashboard/settings",
+    label: "Settings",
+    isActive: (pathname) =>
+      pathname === "/dashboard/settings" ||
+      pathname.startsWith("/dashboard/settings/"),
+  },
+];
+
+function defaultIsActive(pathname: string, href: string): boolean {
   if (href === "/dashboard") {
     return pathname === "/dashboard";
   }
@@ -27,15 +106,34 @@ function isActive(pathname: string, href: string) {
 
 export function DashboardNav() {
   const pathname = usePathname();
+  let headingIndex = 0;
 
   return (
     <nav className="flex flex-col gap-0.5 px-2 py-2">
-      {DASHBOARD_NAV_ITEMS.map(({ href, label }) => {
-        const active = isActive(pathname, href);
+      {NAV_ITEMS.map((item) => {
+        if (item.type === "heading") {
+          headingIndex += 1;
+          return (
+            <p
+              key={item.label}
+              className={cn(
+                "px-3 pb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground",
+                headingIndex === 1 ? "pt-3" : "pt-4"
+              )}
+            >
+              {item.label}
+            </p>
+          );
+        }
+
+        const active = item.isActive
+          ? item.isActive(pathname)
+          : defaultIsActive(pathname, item.href);
+
         return (
           <Link
-            key={href}
-            href={href}
+            key={item.href}
+            href={item.href}
             className={cn(
               "block rounded-md px-3 py-2 text-sm transition-colors",
               active
@@ -43,7 +141,7 @@ export function DashboardNav() {
                 : "text-muted-foreground hover:bg-accent hover:text-foreground"
             )}
           >
-            {label}
+            {item.label}
           </Link>
         );
       })}

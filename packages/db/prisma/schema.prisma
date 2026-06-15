@@ -93,11 +93,23 @@ model Lead {
   clientId  String?
   siteId    String?
 
-  client Client? @relation(fields: [clientId], references: [id])
-  site   Site?   @relation(fields: [siteId], references: [id], onDelete: SetNull)
-  deals  Deal[]
-  notes  Note[]
-  tasks  Task[]
+  client     Client?         @relation(fields: [clientId], references: [id])
+  site       Site?           @relation(fields: [siteId], references: [id], onDelete: SetNull)
+  deals      Deal[]
+  notes      Note[]
+  tasks      Task[]
+  conversion LeadConversion?
+}
+
+model LeadConversion {
+  id            String       @id @default(cuid())
+  leadId        String       @unique
+  lead          Lead         @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  package       PackageType?
+  purchaseDate  DateTime?
+  agreedDetails String?      @db.Text
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
 }
 
 model Deal {

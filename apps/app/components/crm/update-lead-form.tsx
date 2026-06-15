@@ -3,8 +3,13 @@
 import { useState } from "react";
 import { Button } from "@stky/ui";
 import { Card, CardContent, CardHeader, CardTitle } from "@stky/ui";
+import { resolveLeadSourceFromForm } from "@stky/crm";
 import { updateLead } from "@/lib/server/actions/leads";
+import { LeadSourceFields } from "@/components/crm/lead-source-fields";
 import type { Lead } from "@stky/db";
+
+const inputClass =
+  "mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm";
 
 export function UpdateLeadForm({ lead }: { lead: Lead }) {
   const [pending, setPending] = useState(false);
@@ -15,9 +20,13 @@ export function UpdateLeadForm({ lead }: { lead: Lead }) {
       await updateLead(lead.id, {
         name: formData.get("name") as string,
         email: formData.get("email") as string,
+        phone: ((formData.get("phone") as string) ?? "").trim() || null,
         company: (formData.get("company") as string) || undefined,
         website: (formData.get("website") as string) || undefined,
-        source: (formData.get("source") as string) || undefined,
+        source: resolveLeadSourceFromForm(
+          (formData.get("sourceSelect") as string) ?? "",
+          (formData.get("sourceCustom") as string) ?? ""
+        ),
         status: (formData.get("status") as string) || undefined,
       });
     } finally {
@@ -38,7 +47,7 @@ export function UpdateLeadForm({ lead }: { lead: Lead }) {
               name="name"
               defaultValue={lead.name}
               required
-              className="mt-1 w-full rounded-md border px-3 py-2"
+              className={inputClass}
             />
           </div>
           <div>
@@ -48,7 +57,16 @@ export function UpdateLeadForm({ lead }: { lead: Lead }) {
               type="email"
               defaultValue={lead.email}
               required
-              className="mt-1 w-full rounded-md border px-3 py-2"
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium">Phone</label>
+            <input
+              name="phone"
+              type="tel"
+              defaultValue={lead.phone ?? ""}
+              className={inputClass}
             />
           </div>
           <div>
@@ -56,7 +74,7 @@ export function UpdateLeadForm({ lead }: { lead: Lead }) {
             <input
               name="company"
               defaultValue={lead.company ?? ""}
-              className="mt-1 w-full rounded-md border px-3 py-2"
+              className={inputClass}
             />
           </div>
           <div>
@@ -65,23 +83,16 @@ export function UpdateLeadForm({ lead }: { lead: Lead }) {
               name="website"
               type="url"
               defaultValue={lead.website ?? ""}
-              className="mt-1 w-full rounded-md border px-3 py-2"
+              className={inputClass}
             />
           </div>
-          <div>
-            <label className="text-sm font-medium">Source</label>
-            <input
-              name="source"
-              defaultValue={lead.source ?? ""}
-              className="mt-1 w-full rounded-md border px-3 py-2"
-            />
-          </div>
+          <LeadSourceFields defaultSource={lead.source} idPrefix="edit-" />
           <div>
             <label className="text-sm font-medium">Status</label>
             <input
               name="status"
               defaultValue={lead.status}
-              className="mt-1 w-full rounded-md border px-3 py-2"
+              className={inputClass}
             />
           </div>
           <Button type="submit" disabled={pending}>

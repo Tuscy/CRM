@@ -60,7 +60,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { name, email, company, website, source, status } = body;
+    const { name, email, phone, company, website, source, status } = body;
 
     if (status !== undefined && !isValidLeadStatus(status)) {
       return NextResponse.json({ error: "Invalid lead status" }, { status: 400 });
@@ -71,6 +71,7 @@ export async function PUT(
       data: {
         ...(name !== undefined && { name }),
         ...(email !== undefined && { email }),
+        ...(phone !== undefined && { phone }),
         ...(company !== undefined && { company }),
         ...(website !== undefined && { website }),
         ...(source !== undefined && { source }),

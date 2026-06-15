@@ -42,3 +42,49 @@ export function isValidDealStage(s: string): s is PipelineStage {
 export function isValidLeadStatus(s: string): s is LeadStatus {
   return (LEAD_STATUSES as readonly string[]).includes(s);
 }
+
+export const LEAD_SOURCES = [
+  "BNI",
+  "WEBSITE",
+  "REFERRAL",
+  "GOOGLE_ADS",
+  "LINKEDIN",
+  "SOCIAL",
+  "OTHER",
+] as const;
+
+export type LeadSource = (typeof LEAD_SOURCES)[number];
+
+export const LEAD_SOURCE_LABELS: Record<LeadSource, string> = {
+  BNI: "BNI",
+  WEBSITE: "Website",
+  REFERRAL: "Referral",
+  GOOGLE_ADS: "Google Ads",
+  LINKEDIN: "LinkedIn",
+  SOCIAL: "Social media",
+  OTHER: "Other",
+};
+
+export function isKnownLeadSource(s: string): s is LeadSource {
+  return (LEAD_SOURCES as readonly string[]).includes(s);
+}
+
+/** Display label for a stored source (known keys or legacy free text). */
+export function leadSourceLabel(source: string | null | undefined): string {
+  if (!source) return "—";
+  if (isKnownLeadSource(source)) return LEAD_SOURCE_LABELS[source];
+  return source;
+}
+
+export function resolveLeadSourceFromForm(
+  selectValue: string,
+  customValue: string
+): string | undefined {
+  const trimmed = selectValue.trim();
+  if (!trimmed) return undefined;
+  if (trimmed === "OTHER") {
+    const custom = customValue.trim();
+    return custom || "OTHER";
+  }
+  return trimmed;
+}

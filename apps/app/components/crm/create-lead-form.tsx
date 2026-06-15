@@ -9,7 +9,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@stky/ui";
+import { resolveLeadSourceFromForm } from "@stky/crm";
 import { createLead } from "@/lib/server/actions/leads";
+import { LeadSourceFields } from "@/components/crm/lead-source-fields";
+
+const inputClass =
+  "mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm";
 
 export function CreateLeadForm() {
   const [open, setOpen] = useState(false);
@@ -21,9 +26,13 @@ export function CreateLeadForm() {
       await createLead({
         name: formData.get("name") as string,
         email: formData.get("email") as string,
+        phone: (formData.get("phone") as string) || undefined,
         company: (formData.get("company") as string) || undefined,
         website: (formData.get("website") as string) || undefined,
-        source: (formData.get("source") as string) || undefined,
+        source: resolveLeadSourceFromForm(
+          (formData.get("sourceSelect") as string) ?? "",
+          (formData.get("sourceCustom") as string) ?? ""
+        ),
         status: (formData.get("status") as string) || "NEW",
       });
       setOpen(false);
@@ -44,50 +53,31 @@ export function CreateLeadForm() {
         <form action={handleSubmit} className="space-y-4">
           <div>
             <label className="text-sm font-medium">Name *</label>
-            <input
-              name="name"
-              required
-              className="mt-1 w-full rounded-md border px-3 py-2"
-            />
+            <input name="name" required className={inputClass} />
           </div>
           <div>
             <label className="text-sm font-medium">Email *</label>
-            <input
-              name="email"
-              type="email"
-              required
-              className="mt-1 w-full rounded-md border px-3 py-2"
-            />
+            <input name="email" type="email" required className={inputClass} />
+          </div>
+          <div>
+            <label className="text-sm font-medium">Phone</label>
+            <input name="phone" type="tel" className={inputClass} />
           </div>
           <div>
             <label className="text-sm font-medium">Company</label>
-            <input
-              name="company"
-              className="mt-1 w-full rounded-md border px-3 py-2"
-            />
+            <input name="company" className={inputClass} />
           </div>
           <div>
             <label className="text-sm font-medium">Website</label>
-            <input
-              name="website"
-              type="url"
-              className="mt-1 w-full rounded-md border px-3 py-2"
-            />
+            <input name="website" type="url" className={inputClass} />
           </div>
-          <div>
-            <label className="text-sm font-medium">Source</label>
-            <input
-              name="source"
-              placeholder="e.g. Contact form, LinkedIn"
-              className="mt-1 w-full rounded-md border px-3 py-2"
-            />
-          </div>
+          <LeadSourceFields idPrefix="create-" />
           <div>
             <label className="text-sm font-medium">Status</label>
             <input
               name="status"
               defaultValue="NEW"
-              className="mt-1 w-full rounded-md border px-3 py-2"
+              className={inputClass}
             />
           </div>
           <div className="flex justify-end gap-2">

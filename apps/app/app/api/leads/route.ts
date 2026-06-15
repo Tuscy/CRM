@@ -30,6 +30,7 @@ export async function GET(request: NextRequest) {
         OR: [
           { name: { contains: q.trim(), mode: "insensitive" } },
           { email: { contains: q.trim(), mode: "insensitive" } },
+          { phone: { contains: q.trim(), mode: "insensitive" } },
           { company: { contains: q.trim(), mode: "insensitive" } },
         ],
       }),
@@ -67,7 +68,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { name, email, company, website, source, status } = body;
+    const { name, email, phone, company, website, source, status } = body;
 
     if (!name || !email) {
       return NextResponse.json(
@@ -85,6 +86,7 @@ export async function POST(request: NextRequest) {
       data: {
         name,
         email,
+        phone: phone ?? undefined,
         company: company ?? undefined,
         website: website ?? undefined,
         source: source ?? undefined,

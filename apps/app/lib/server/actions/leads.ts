@@ -9,13 +9,22 @@ import { notifyLeadCreated } from "@/lib/crm/webhook-events";
 export type CreateLeadInput = {
   name: string;
   email: string;
+  phone?: string;
   company?: string;
   website?: string;
   source?: string;
   status?: string;
 };
 
-export type UpdateLeadInput = Partial<CreateLeadInput>;
+export type UpdateLeadInput = {
+  name?: string;
+  email?: string;
+  phone?: string | null;
+  company?: string;
+  website?: string;
+  source?: string;
+  status?: string;
+};
 
 export async function createLead(data: CreateLeadInput) {
   const status = data.status ?? "NEW";
@@ -26,6 +35,7 @@ export async function createLead(data: CreateLeadInput) {
     data: {
       name: data.name,
       email: data.email,
+      phone: data.phone?.trim() || undefined,
       company: data.company,
       website: data.website,
       source: data.source,
@@ -52,6 +62,7 @@ export async function getLeads(filters?: {
       OR: [
         { name: { contains: filters.q.trim(), mode: "insensitive" } },
         { email: { contains: filters.q.trim(), mode: "insensitive" } },
+        { phone: { contains: filters.q.trim(), mode: "insensitive" } },
         {
           company: { contains: filters.q.trim(), mode: "insensitive" },
         },
@@ -89,6 +100,7 @@ export async function updateLead(id: string, data: UpdateLeadInput) {
     data: {
       ...(data.name !== undefined && { name: data.name }),
       ...(data.email !== undefined && { email: data.email }),
+      ...(data.phone !== undefined && { phone: data.phone }),
       ...(data.company !== undefined && { company: data.company }),
       ...(data.website !== undefined && { website: data.website }),
       ...(data.source !== undefined && { source: data.source }),

@@ -4,13 +4,14 @@ import { cn } from "@stky/ui/utils";
 
 type AppBrandProps = {
   showText?: boolean;
-  size?: "sm" | "md" | "lg";
+  size?: "xs" | "sm" | "md" | "lg";
   variant?: "light" | "dark";
   className?: string;
   href?: string;
 };
 
 const sizeMap = {
+  xs: { width: 72, height: 62, text: "text-xs" },
   sm: { width: 100, height: 86, text: "text-sm" },
   md: { width: 140, height: 121, text: "text-base" },
   lg: { width: 180, height: 155, text: "text-lg" },

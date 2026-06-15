@@ -1,11 +1,13 @@
 import Link from "next/link";
+import { AppBrand } from "@/components/app-brand";
 
 export default function HomePage() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center p-8">
-      <h1 className="text-3xl font-bold mb-4">Web Agency CRM</h1>
-      <p className="text-muted-foreground mb-8">
-        Internal CRM for leads, deals, and pipeline management.
+      <AppBrand showText={false} size="lg" className="mb-6" />
+      <h1 className="text-3xl font-bold mb-4">StickySites CRM</h1>
+      <p className="text-muted-foreground mb-8 text-center max-w-md">
+        Internal platform for StickySites staff and client reporting.
       </p>
       <Link
         href="/dashboard"

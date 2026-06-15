@@ -2,6 +2,7 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { Button, Card, CardContent, CardHeader, CardTitle } from "@stky/ui";
+import { AppBrand } from "@/components/app-brand";
 import { StaffCredentialsForm } from "@/components/crm/staff-credentials-form";
 
 const STAFF_COOKIE = "stky_staff_gate";
@@ -43,8 +44,9 @@ export default async function StaffLoginPage({
 
   if (!hasAuthSecret && !legacyPassword) {
     return (
-      <div className="mx-auto max-w-md p-8">
-        <Card>
+      <div className="mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center gap-6 p-8">
+        <AppBrand showText={false} size="md" />
+        <Card className="w-full">
           <CardHeader>
             <CardTitle>Staff gate disabled</CardTitle>
           </CardHeader>
@@ -65,7 +67,8 @@ export default async function StaffLoginPage({
   }
 
   return (
-    <div className="mx-auto flex min-h-[60vh] max-w-md items-center p-8">
+    <div className="mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center gap-6 p-8">
+      <AppBrand showText={false} size="md" />
       <Card className="w-full">
         <CardHeader>
           <CardTitle>Staff sign-in</CardTitle>

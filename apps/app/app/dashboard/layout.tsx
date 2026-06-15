@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { auth } from "@/auth";
+import { AppBrand } from "@/components/app-brand";
 import { DashboardNav } from "@/components/dashboard/dashboard-nav";
 import { SignOutForm } from "./sign-out-form";
 
@@ -16,9 +16,7 @@ export default async function DashboardLayout({
     <div className="dashboard-shell flex h-screen overflow-hidden bg-background text-foreground">
       <aside className="flex h-full w-56 shrink-0 flex-col border-r bg-muted">
         <div className="shrink-0 border-b px-4 py-4">
-          <Link href="/dashboard" className="font-semibold text-foreground">
-            Web Agency CRM
-          </Link>
+          <AppBrand href="/dashboard" size="sm" />
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto">
           <DashboardNav />

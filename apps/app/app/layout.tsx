@@ -3,8 +3,13 @@ import "./globals.css";
 import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-  title: "Web Agency CRM",
-  description: "Internal CRM for web agency leads and pipeline",
+  title: "StickySites CRM",
+  description:
+    "Internal platform for StickySites staff and client reporting.",
+  icons: {
+    icon: "/darkLogo.png",
+    apple: "/darkLogo.png",
+  },
 };
 
 export default function RootLayout({

@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | Web Agency CRM",
+  title: "Privacy Policy | StickySites CRM",
   description:
-    "Privacy policy for the Stky Web Agency CRM platform, including Google Ads API usage.",
+    "Privacy policy for the StickySites CRM platform, including Google Ads API usage.",
 };
 
 export default function PrivacyPolicyPage() {
@@ -25,9 +25,9 @@ export default function PrivacyPolicyPage() {
             <h2 className="text-lg font-semibold text-foreground">1. Introduction</h2>
             <p className="mt-3">
               This Privacy Policy describes how Stky (&quot;we&quot;, &quot;us&quot;, or
-              &quot;our&quot;) collects, uses, and protects information when you use the Web
-              Agency CRM platform (the &quot;Service&quot;). The Service is operated for internal
-              agency use and for authorised staff and client portal users.
+              &quot;our&quot;) collects, uses, and protects information when you use the
+              StickySites CRM platform (the &quot;Service&quot;). The Service is operated for
+              internal StickySites use and for authorised staff and client portal users.
             </p>
           </section>
 

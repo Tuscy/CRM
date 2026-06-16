@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { timingSafeEqual, createHash } from "crypto";
 import { prisma } from "@stky/db";
 import { notifyLeadCreated } from "@/lib/crm/webhook-events";
+import { enrolMatchingFlows } from "@/lib/email-flows/trigger";
 
 export const dynamic = "force-dynamic";
 
@@ -81,6 +82,7 @@ export async function POST(request: NextRequest) {
   });
 
   await notifyLeadCreated(lead);
+  await enrolMatchingFlows("LEAD_CREATED", { leadId: lead.id });
 
   return NextResponse.json({ id: lead.id }, { status: 201 });
 }

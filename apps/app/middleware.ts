@@ -50,6 +50,13 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/dashboard/clients", request.url));
   }
 
+  if (
+    pathname === "/dashboard/analytics" ||
+    pathname.startsWith("/dashboard/analytics/")
+  ) {
+    return NextResponse.redirect(new URL("/dashboard/pipeline", request.url));
+  }
+
   if (isProduction() && !dashboardAuthConfigured()) {
     return new NextResponse(
       "CRM misconfiguration: set AUTH_SECRET in production (see CRM README).",

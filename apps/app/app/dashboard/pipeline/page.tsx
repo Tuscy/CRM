@@ -1,5 +1,6 @@
 import { getDealsByStage } from "@/lib/server/actions/deals";
 import { PipelineKanban } from "@/components/crm/pipeline-kanban";
+import { FunnelAnalyticsSection } from "@/components/dashboard/funnel-analytics-section";
 
 export default async function PipelinePage() {
   const deals = await getDealsByStage();
@@ -11,6 +12,7 @@ export default async function PipelinePage() {
         Deal pipeline — move deals between stages using the menu on each card.
       </p>
       <PipelineKanban deals={deals} />
+      <FunnelAnalyticsSection />
     </div>
   );
 }

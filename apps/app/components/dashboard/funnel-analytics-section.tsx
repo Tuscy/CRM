@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@stky/ui";
 import { prisma } from "@stky/db";
 import { getClientAnalytics } from "@/lib/analytics/ga4";
 
-export default async function AnalyticsPage() {
+export async function FunnelAnalyticsSection() {
   const [leadCount, dealCount, wonDeals, pipelineValue] = await Promise.all([
     prisma.lead.count(),
     prisma.deal.count(),
@@ -13,7 +13,6 @@ export default async function AnalyticsPage() {
     }),
   ]);
 
-  // Optional: show GA4 metrics for a default client if configured.
   let gaSummary: { totalUsers: number; sessions: number } | null = null;
   try {
     const clientCred = await prisma.analyticsCredential.findFirst({
@@ -35,8 +34,8 @@ export default async function AnalyticsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Analytics</h1>
+    <section className="space-y-4">
+      <h2 className="text-xl font-semibold">Analytics</h2>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
@@ -105,6 +104,6 @@ export default async function AnalyticsPage() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </section>
   );
 }

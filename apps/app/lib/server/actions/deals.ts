@@ -7,6 +7,7 @@ import {
   notifyDealCreated,
   notifyDealUpdated,
 } from "@/lib/crm/webhook-events";
+import { enrolMatchingFlows } from "@/lib/email-flows/trigger";
 
 export async function getDealsByStage() {
   const deals = await prisma.deal.findMany({
@@ -33,6 +34,13 @@ export async function updateDealStage(dealId: string, stage: string) {
     include: { lead: true },
   });
   await notifyDealUpdated(deal, existing.stage);
+  if (existing.stage !== deal.stage) {
+    await enrolMatchingFlows(
+      "DEAL_STAGE_CHANGED",
+      { leadId: deal.leadId },
+      { stage: deal.stage }
+    );
+  }
   revalidatePath("/dashboard/pipeline");
   revalidatePath("/dashboard");
   return deal;
@@ -67,6 +75,7 @@ export async function createDeal(
     include: { lead: true },
   });
   await notifyDealCreated(deal);
+  await enrolMatchingFlows("DEAL_CREATED", { leadId: deal.leadId });
   revalidatePath("/dashboard/pipeline");
   revalidatePath("/dashboard");
   return deal;

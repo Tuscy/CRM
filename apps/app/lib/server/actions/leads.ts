@@ -5,6 +5,7 @@ import { prisma } from "@stky/db";
 import type { Prisma } from "@stky/db";
 import { isValidLeadStatus } from "@stky/crm";
 import { notifyLeadCreated } from "@/lib/crm/webhook-events";
+import { enrolMatchingFlows } from "@/lib/email-flows/trigger";
 
 export type CreateLeadInput = {
   name: string;
@@ -44,6 +45,7 @@ export async function createLead(data: CreateLeadInput) {
     include: { deals: true },
   });
   await notifyLeadCreated(lead);
+  await enrolMatchingFlows("LEAD_CREATED", { leadId: lead.id });
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/leads");
   revalidatePath("/dashboard/pipeline");
@@ -95,6 +97,13 @@ export async function updateLead(id: string, data: UpdateLeadInput) {
   if (data.status !== undefined && !isValidLeadStatus(data.status)) {
     throw new Error("Invalid lead status");
   }
+  const previous =
+    data.status !== undefined
+      ? await prisma.lead.findUnique({
+          where: { id },
+          select: { status: true },
+        })
+      : null;
   const lead = await prisma.lead.update({
     where: { id },
     data: {
@@ -108,6 +117,17 @@ export async function updateLead(id: string, data: UpdateLeadInput) {
     },
     include: { deals: true, tasks: true, notes: true },
   });
+  if (
+    data.status !== undefined &&
+    previous &&
+    previous.status !== lead.status
+  ) {
+    await enrolMatchingFlows(
+      "LEAD_STATUS_CHANGED",
+      { leadId: lead.id },
+      { status: lead.status }
+    );
+  }
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/leads");
   revalidatePath("/dashboard/leads/" + id);

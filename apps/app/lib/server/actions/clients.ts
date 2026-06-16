@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { prisma, Prisma } from "@stky/db";
 import { logActivity } from "@/lib/server/activity-log";
+import { enrolMatchingFlows } from "@/lib/email-flows/trigger";
 
 const BILLING_PERIODS = ["monthly", "annual", "quarterly", "one-time"] as const;
 
@@ -137,6 +138,8 @@ export async function createClient(data: CreateClientInput) {
     body: `Client record created.${packageLabel}${serviceLabel}`,
     actorId,
   });
+
+  await enrolMatchingFlows("CLIENT_CREATED", { clientId: client.id });
 
   revalidatePath("/dashboard/clients");
   return client;

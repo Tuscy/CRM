@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@stky/db";
+import { enrolMatchingFlows } from "@/lib/email-flows/trigger";
 
 export async function createTask(
   leadId: string,
@@ -27,6 +28,10 @@ export async function toggleTaskCompleted(taskId: string, leadId: string) {
     where: { id: taskId },
     data: { completed: !task.completed },
   });
+  // Fire only on the false → true transition.
+  if (updated.completed && !task.completed) {
+    await enrolMatchingFlows("TASK_COMPLETED", { leadId: updated.leadId });
+  }
   revalidatePath(`/dashboard/leads/${leadId}`);
   return updated;
 }

@@ -48,12 +48,6 @@ const NAV_ITEMS: NavItem[] = [
     isActive: (pathname) =>
       pathname === "/dashboard/tasks" || pathname.startsWith("/dashboard/tasks/"),
   },
-  {
-    type: "link",
-    href: "/dashboard/analytics",
-    label: "Analytics",
-    isActive: (pathname) => pathname === "/dashboard/analytics",
-  },
   { type: "heading", label: "Clients" },
   {
     type: "link",
@@ -86,6 +80,14 @@ const NAV_ITEMS: NavItem[] = [
     isActive: (pathname) =>
       pathname === "/dashboard/reporting" ||
       pathname.startsWith("/dashboard/reporting/"),
+  },
+  {
+    type: "link",
+    href: "/dashboard/email-flows",
+    label: "Email Flows",
+    isActive: (pathname) =>
+      pathname === "/dashboard/email-flows" ||
+      pathname.startsWith("/dashboard/email-flows/"),
   },
   {
     type: "link",

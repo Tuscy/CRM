@@ -45,7 +45,7 @@ export default async function StaffLoginPage({
   if (!hasAuthSecret && !legacyPassword) {
     return (
       <div className="mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center gap-6 p-8">
-        <AppBrand showText={false} size="md" />
+        <AppBrand showText={false} size="lg" />
         <Card className="w-full">
           <CardHeader>
             <CardTitle>Staff gate disabled</CardTitle>
@@ -68,7 +68,7 @@ export default async function StaffLoginPage({
 
   return (
     <div className="mx-auto flex min-h-[60vh] max-w-md flex-col items-center justify-center gap-6 p-8">
-      <AppBrand showText={false} size="md" />
+      <AppBrand showText={false} size="lg" />
       <Card className="w-full">
         <CardHeader>
           <CardTitle>Staff sign-in</CardTitle>

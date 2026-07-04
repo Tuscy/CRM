@@ -41,7 +41,7 @@ export default async function LeadsPage({
               No leads match your filters.
             </p>
           ) : (
-            <div className="rounded-md border">
+            <div className="rounded-md border overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b bg-muted/50">

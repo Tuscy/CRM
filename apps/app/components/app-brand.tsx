@@ -11,10 +11,30 @@ type AppBrandProps = {
 };
 
 const sizeMap = {
-  xs: { width: 72, height: 62, text: "text-xs" },
-  sm: { width: 100, height: 86, text: "text-sm" },
-  md: { width: 140, height: 121, text: "text-base" },
-  lg: { width: 180, height: 155, text: "text-lg" },
+  xs: {
+    width: 140,
+    height: 121,
+    logo: "h-auto w-[clamp(1.5rem,4vw,2.25rem)]",
+    text: "text-xs",
+  },
+  sm: {
+    width: 140,
+    height: 121,
+    logo: "h-auto w-[clamp(2rem,5vw,3rem)]",
+    text: "text-sm",
+  },
+  md: {
+    width: 140,
+    height: 121,
+    logo: "h-auto w-[clamp(2.5rem,6vw,3.75rem)]",
+    text: "text-base",
+  },
+  lg: {
+    width: 180,
+    height: 155,
+    logo: "h-auto w-[clamp(4rem,12vw,7.5rem)]",
+    text: "text-lg",
+  },
 } as const;
 
 export function AppBrand({
@@ -24,7 +44,7 @@ export function AppBrand({
   className,
   href,
 }: AppBrandProps) {
-  const { width, height, text } = sizeMap[size];
+  const { width, height, logo, text } = sizeMap[size];
   const logoSrc = variant === "light" ? "/darkLogo.png" : "/LightLogo.png";
 
   const content = (
@@ -34,7 +54,7 @@ export function AppBrand({
         alt="StickySites CRM"
         width={width}
         height={height}
-        className="h-auto w-auto shrink-0"
+        className={cn("shrink-0", logo)}
         priority={size === "lg"}
       />
       {showText ? (

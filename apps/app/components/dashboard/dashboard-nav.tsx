@@ -89,6 +89,7 @@ const NAV_ITEMS: NavItem[] = [
       pathname === "/dashboard/email-flows" ||
       pathname.startsWith("/dashboard/email-flows/"),
   },
+  { type: "heading", label: "Tools" },
   {
     type: "link",
     href: "/dashboard/automations",

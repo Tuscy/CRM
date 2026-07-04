@@ -17,3 +17,9 @@ dist
 
 # OS
 .DS_Store
+
+# Claude/Cursor
+.claude
+
+# Legacy Code
+_legacy-pre-monorepo

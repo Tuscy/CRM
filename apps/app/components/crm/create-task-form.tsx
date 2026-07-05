@@ -38,7 +38,8 @@ export function CreateTaskForm({
       const dueDateRaw = formData.get("dueDate") as string;
       const assigneeId = (formData.get("assigneeId") as string) || undefined;
 
-      await createTask(leadId, title, {
+      await createTask(title, {
+        leadId,
         dueDate: dueDateRaw ? new Date(dueDateRaw) : undefined,
         assigneeId,
       });

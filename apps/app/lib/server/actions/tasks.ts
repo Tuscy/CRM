@@ -2,26 +2,35 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@stky/db";
+import { auth } from "@/auth";
 import { enrolMatchingFlows } from "@/lib/email-flows/trigger";
 
 export async function createTask(
-  leadId: string,
   title: string,
-  opts?: { dueDate?: Date; assigneeId?: string }
+  opts?: { leadId?: string; dueDate?: Date; assigneeId?: string }
 ) {
+  let assigneeId = opts?.assigneeId || null;
+  if (!opts?.leadId && !assigneeId) {
+    const session = await auth();
+    assigneeId = session?.user?.id ?? null;
+  }
+
   const task = await prisma.task.create({
     data: {
-      leadId,
+      leadId: opts?.leadId || null,
       title,
       dueDate: opts?.dueDate,
-      assigneeId: opts?.assigneeId || null,
+      assigneeId,
     },
   });
-  revalidatePath(`/dashboard/leads/${leadId}`);
+  revalidatePath("/dashboard/tasks");
+  if (task.leadId) {
+    revalidatePath(`/dashboard/leads/${task.leadId}`);
+  }
   return task;
 }
 
-export async function toggleTaskCompleted(taskId: string, leadId: string) {
+export async function toggleTaskCompleted(taskId: string) {
   const task = await prisma.task.findUnique({ where: { id: taskId } });
   if (!task) throw new Error("Task not found");
   const updated = await prisma.task.update({
@@ -29,11 +38,33 @@ export async function toggleTaskCompleted(taskId: string, leadId: string) {
     data: { completed: !task.completed },
   });
   // Fire only on the false → true transition.
-  if (updated.completed && !task.completed) {
+  if (updated.leadId && updated.completed && !task.completed) {
     await enrolMatchingFlows("TASK_COMPLETED", { leadId: updated.leadId });
   }
-  revalidatePath(`/dashboard/leads/${leadId}`);
+  revalidatePath("/dashboard/tasks");
+  if (updated.leadId) {
+    revalidatePath(`/dashboard/leads/${updated.leadId}`);
+  }
   return updated;
+}
+
+export async function deleteTask(taskId: string) {
+  const task = await prisma.task.delete({ where: { id: taskId } });
+  revalidatePath("/dashboard/tasks");
+  if (task.leadId) {
+    revalidatePath(`/dashboard/leads/${task.leadId}`);
+  }
+  return task;
+}
+
+export async function getMyTasks() {
+  const session = await auth();
+  if (!session?.user?.id) return [];
+  return prisma.task.findMany({
+    where: { assigneeId: session.user.id },
+    include: { lead: { select: { id: true, name: true } } },
+    orderBy: [{ completed: "asc" }, { dueDate: "asc" }],
+  });
 }
 
 export async function getStaffUsers() {

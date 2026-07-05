@@ -92,6 +92,14 @@ const NAV_ITEMS: NavItem[] = [
   { type: "heading", label: "Tools" },
   {
     type: "link",
+    href: "/dashboard/contacts",
+    label: "Contacts",
+    isActive: (pathname) =>
+      pathname === "/dashboard/contacts" ||
+      pathname.startsWith("/dashboard/contacts/"),
+  },
+  {
+    type: "link",
     href: "/dashboard/automations",
     label: "Automations",
     isActive: (pathname) =>

@@ -129,12 +129,25 @@ model Task {
   title       String
   dueDate     DateTime?
   completed   Boolean   @default(false)
-  leadId      String
+  leadId      String?
   assigneeId  String?
-  lead        Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  lead        Lead?     @relation(fields: [leadId], references: [id], onDelete: Cascade)
   assignee    User?     @relation("TaskAssignee", fields: [assigneeId], references: [id])
 
   @@index([assigneeId])
+}
+
+model Contact {
+  id        String    @id @default(cuid())
+  name      String
+  email     String?
+  phone     String?
+  address   String?
+  company   String?
+  knownFrom String?
+  birthday  DateTime? @db.Date
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Note {

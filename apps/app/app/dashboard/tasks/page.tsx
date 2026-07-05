@@ -1,23 +1,13 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@stky/ui";
+import { getMyTasks } from "@/lib/server/actions/tasks";
+import { PersonalTaskList } from "@/components/dashboard/personal-task-list";
 
-export default function TasksPage() {
+export default async function TasksPage() {
+  const tasks = await getMyTasks();
+
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Tasks</h1>
-      <Card>
-        <CardHeader>
-          <CardTitle>Follow-ups & tasks</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Task management per lead — coming soon.
-          </p>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">
-            Tasks are linked to leads in the database. Add task CRUD and list
-            view here.
-          </p>
-        </CardContent>
-      </Card>
+      <PersonalTaskList tasks={tasks} />
     </div>
   );
 }

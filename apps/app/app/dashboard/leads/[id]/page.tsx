@@ -8,6 +8,7 @@ import { UpdateLeadForm } from "@/components/crm/update-lead-form";
 import { DeleteLeadButton } from "@/components/crm/delete-lead-button";
 import { LeadConversionForm } from "@/components/crm/lead-conversion-form";
 import { CreateTaskForm } from "@/components/crm/create-task-form";
+import { DeleteTaskButton } from "@/components/crm/delete-task-button";
 
 const PACKAGE_LABELS: Record<string, string> = {
   VOLTAGE: "Voltage",
@@ -219,11 +220,14 @@ export default async function LeadDetailPage({
                           </span>
                         ) : null}
                       </div>
-                      {t.dueDate && (
-                        <span className="text-muted-foreground text-xs">
-                          {new Date(t.dueDate).toLocaleDateString()}
-                        </span>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {t.dueDate && (
+                          <span className="text-muted-foreground text-xs">
+                            {new Date(t.dueDate).toLocaleDateString()}
+                          </span>
+                        )}
+                        <DeleteTaskButton taskId={t.id} />
+                      </div>
                     </li>
                   ))}
                 </ul>

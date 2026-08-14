@@ -8,45 +8,29 @@ import { prisma } from "@stky/db";
  * MCP server for the CRM's personal to-do list — built specifically for the
  * Cowork "Add custom connector" flow, which only supports OAuth or no auth,
  * nowhere to put a static Authorization header. So instead of a real key,
- * this route is gated on two things together:
+ * this route is gated on an unguessable secret baked into the URL path
+ * itself (MCP_TASKS_SECRET env var). Not a query param — those get logged
+ * by proxies/browsers, the MCP auth spec explicitly warns against them.
  *
- *   1. An unguessable secret baked into the URL path itself (MCP_TASKS_SECRET
- *      env var). Not a query param — those get logged by proxies/browsers,
- *      the MCP auth spec explicitly warns against them.
- *   2. The request must originate from Anthropic's published MCP egress
- *      range (160.79.104.0/21). This alone is NOT per-user — it's shared by
- *      every Claude/Cowork user — so it only matters combined with #1.
+ * Originally also checked the request's source IP against Anthropic's
+ * published MCP egress range (160.79.104.0/21) as defense-in-depth. Dropped
+ * 2026-08-14: it broke Cowork's own "Add custom connector" setup flow —
+ * that connector-verification request doesn't appear to originate from the
+ * same range as live tool-call traffic, so it hit this route's fail-closed
+ * 404, and Cowork's client interpreted the ambiguous 404 as "this needs
+ * OAuth" and tried (and failed) to auto-register a client, which is what
+ * "Couldn't register with MCP_TASKS_SECRET's sign-in service" actually
+ * meant. The path secret alone (32 hex chars, unguessable, checked with
+ * timingSafeEqual) is the real control here — the IP check was extra
+ * hardening that turned out to be more fragile than valuable for a
+ * single-user internal tool. If this needs stronger auth later, do a real
+ * OAuth server, not another IP heuristic.
  *
  * Deliberately minimal output: list_tasks returns only id/title/dueDate/
  * completed, never lead or assignee names/IDs, since this endpoint has no
  * per-user scoping the way the API-key-gated /api/tasks REST route does.
  * If you need lead/assignee detail, use the REST route with a real key.
  */
-
-const ANTHROPIC_MCP_CIDR = "160.79.104.0/21";
-
-function ipToInt(ip: string): number {
-  return (
-    ip
-      .split(".")
-      .reduce((acc, octet) => (acc << 8) + (parseInt(octet, 10) & 0xff), 0) >>> 0
-  );
-}
-
-function ipInCidr(ip: string, cidr: string): boolean {
-  const [range, bitsStr] = cidr.split("/");
-  const bits = parseInt(bitsStr, 10);
-  if (!/^\d{1,3}(\.\d{1,3}){3}$/.test(ip)) return false;
-  const mask = bits === 0 ? 0 : (~0 << (32 - bits)) >>> 0;
-  return (ipToInt(ip) & mask) === (ipToInt(range) & mask);
-}
-
-function clientIp(request: NextRequest): string | null {
-  const forwardedFor = request.headers.get("x-forwarded-for");
-  const raw = forwardedFor?.split(",")[0]?.trim() || request.headers.get("x-real-ip");
-  if (!raw) return null;
-  return raw.replace(/^::ffff:/, "");
-}
 
 function timingSafeEqualStr(a: string, b: string): boolean {
   const bufA = Buffer.from(a);
@@ -173,11 +157,6 @@ async function guardedHandler(
 
   // Fail closed if the env var isn't set — never fall open to "no secret required".
   if (!expected || !timingSafeEqualStr(secret, expected)) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
-  }
-
-  const ip = clientIp(request);
-  if (!ip || !ipInCidr(ip, ANTHROPIC_MCP_CIDR)) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 

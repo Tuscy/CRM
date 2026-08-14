@@ -9,6 +9,8 @@ export const ApiScope = {
   GOOGLE_ADS_READ: "google-ads:read",
   GOOGLE_ADS_WRITE: "google-ads:write",
   GBP_READ: "gbp:read",
+  TASKS_READ: "tasks:read",
+  TASKS_WRITE: "tasks:write",
 } as const;
 
 export type ApiScopeName = (typeof ApiScope)[keyof typeof ApiScope];

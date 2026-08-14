@@ -1,5 +1,11 @@
 # Plan: Mobile-usable dashboard nav (off-canvas drawer)
 
+> **Status: ✅ Implemented.** Verified against the live codebase on 2026-08-07 —
+> `apps/app/components/dashboard/mobile-dashboard-shell.tsx` exists with the
+> hamburger + Radix Dialog drawer as specified, `md:hidden` gating confirmed.
+> Moved here from `docs/plans/` so it stops showing as pending work. Kept for
+> reference/history, not as an active to-do.
+
 ## Problem
 
 `apps/app/app/dashboard/layout.tsx` renders a fixed `w-56` sidebar with no responsive

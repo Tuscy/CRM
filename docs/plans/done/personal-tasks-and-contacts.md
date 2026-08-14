@@ -1,5 +1,15 @@
 # Plan: Personal task list + Contacts
 
+> **Status: ✅ Implemented (both parts).** Verified against the live codebase
+> on 2026-08-07 — `Task.leadId` is optional in `schema.prisma`, `deleteTask`/
+> `getMyTasks` exist in `lib/server/actions/tasks.ts`, `/dashboard/tasks` uses
+> `PersonalTaskList`. `Contact` model exists, `/dashboard/contacts/page.tsx`
+> exists, "Contacts" appears under Tools in `dashboard-nav.tsx`. Moved here
+> from `docs/plans/` so it stops showing as pending work. Kept for
+> reference/history, not as an active to-do. (Not independently re-verified:
+> the per-lead delete-button bonus and the update/delete Contact actions —
+> spot-check those specifically if something seems off.)
+
 Two additions for this implementation phase, alongside `mobile-nav-drawer.md`.
 Both follow the conventions already in the codebase (Card/Button from `@stky/ui`,
 table-based list pages like `apps/app/app/dashboard/clients/page.tsx`, server

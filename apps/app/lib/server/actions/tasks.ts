@@ -61,7 +61,9 @@ export async function getMyTasks() {
   const session = await auth();
   if (!session?.user?.id) return [];
   return prisma.task.findMany({
-    where: { assigneeId: session.user.id },
+    where: {
+      OR: [{ assigneeId: session.user.id }, { assigneeId: null }],
+    },
     include: { lead: { select: { id: true, name: true } } },
     orderBy: [{ completed: "asc" }, { dueDate: "asc" }],
   });
